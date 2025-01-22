@@ -1,9 +1,9 @@
-import dynamic from "next/dynamic";
-
-const MainContent = dynamic(() => import("@/components/MainContent"), {
-  ssr: false,
-});
+import MainContent from "@/components/MainContent";
 
 export default function Page() {
-  return <MainContent />;
+  if (typeof window !== "undefined") {
+    return <MainContent />;
+  } else {
+    return null;
+  }
 }

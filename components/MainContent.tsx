@@ -3,7 +3,7 @@
 import React from "react";
 import { CountdownTimer } from "@/components/CountdownTimer";
 import { motion } from "framer-motion";
-import dynamic from "next/dynamic";
+import { ClientSparkles } from "@/components/ClientSparkles";
 import {
   Heart,
   Music,
@@ -17,13 +17,6 @@ import {
   MapPin,
   Calendar,
 } from "lucide-react";
-
-const Sparkles = dynamic(
-  () => import("@/components/Sparkles").then((mod) => mod.Sparkles),
-  {
-    ssr: false,
-  }
-);
 
 const MandalaPattern = () => (
   <div className="absolute inset-0 pointer-events-none">
@@ -248,7 +241,7 @@ const MainContent = () => {
   return (
     <main className="min-h-screen bg-white font-inter relative overflow-hidden">
       <MandalaPattern />
-      <Sparkles className="absolute inset-0 opacity-20" />
+      <ClientSparkles className="absolute inset-0 opacity-20" />
 
       <div className="container mx-auto px-4 py-20 relative z-10">
         <motion.div
