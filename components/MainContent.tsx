@@ -3,7 +3,7 @@
 import React from "react";
 import { CountdownTimer } from "@/components/CountdownTimer";
 import { motion } from "framer-motion";
-import { Sparkles } from "@/components/Sparkles";
+import dynamic from "next/dynamic";
 import {
   Heart,
   Music,
@@ -17,6 +17,13 @@ import {
   MapPin,
   Calendar,
 } from "lucide-react";
+
+const Sparkles = dynamic(
+  () => import("@/components/Sparkles").then((mod) => mod.Sparkles),
+  {
+    ssr: false,
+  }
+);
 
 const MandalaPattern = () => (
   <div className="absolute inset-0 pointer-events-none">
@@ -235,7 +242,7 @@ const EventCard = ({
   </motion.div>
 );
 
-export function MainContent() {
+const MainContent = () => {
   const weddingDate = new Date("2025-03-06T00:00:00");
 
   return (
@@ -373,4 +380,6 @@ export function MainContent() {
       </div>
     </main>
   );
-}
+};
+
+export default MainContent;
