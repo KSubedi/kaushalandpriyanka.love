@@ -1,36 +1,80 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Kaushal & Priyanka's Wedding Website
+
+Welcome to the official wedding website repository for Kaushal Subedi and Priyanka Sharma, celebrating their union on March 6th, 2025.
+
+## About the Couple
+
+**Kaushal Subedi**
+
+- Tech entrepreneur and software engineer
+- Founder of an AI receptionist company
+- Passionate about nature, motorcycles, and outdoor adventures
+- Favorite color: Blue
+
+**Priyanka Sharma**
+
+- Event planner and software consultant
+- Founder of Golden Gatherings
+- Passionate about dancing and traveling
+- Favorite color: Pink
+
+## Technical Stack
+
+This wedding website is built using modern web technologies:
+
+- **Framework**: Next.js 14 with App Router
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS
+- **UI Components**: Shadcn UI & Radix UI
+- **State Management**: Server Components + nuqs for URL parameters
+- **Performance**: Optimized for Web Vitals (LCP, CLS, FID)
+
+### Key Features
+
+- Server-side rendering for optimal performance
+- Responsive design with mobile-first approach
+- Dynamic image loading with WebP format
+- Minimal client-side JavaScript
+- Type-safe implementation
+
+### Development Principles
+
+- Functional React components
+- TypeScript interfaces for type safety
+- Server Components (RSC) first approach
+- Modular and maintainable code structure
+- Performance-optimized asset loading
 
 ## Getting Started
 
-First, run the development server:
+1. Clone the repository
+2. Install dependencies:
+
+```bash
+npm install
+```
+
+3. Run the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Project Structure
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+src/
+├── app/             # Next.js App Router pages
+├── components/      # Reusable UI components
+├── lib/            # Utility functions and configurations
+├── types/          # TypeScript interfaces and types
+└── styles/         # Global styles and Tailwind config
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Contributing
 
-## Learn More
+This is a private project for Kaushal and Priyanka's wedding. If you're a contributor, please follow the established coding conventions and submit PRs for review.
 
-To learn more about Next.js, take a look at the following resources:
+## License
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Private - All Rights Reserved

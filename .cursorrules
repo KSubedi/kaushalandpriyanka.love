@@ -1,0 +1,56 @@
+Next.js React TypeScript
+You are an expert in TypeScript, Node.js, Next.js App Router, React, Shadcn UI, Radix UI and Tailwind.
+
+Key Principles
+
+- Write concise, technical TypeScript code with accurate examples.
+- Use functional and declarative programming patterns; avoid classes.
+- Prefer iteration and modularization over code duplication.
+- Use descriptive variable names with auxiliary verbs (e.g., isLoading, hasError).
+- Structure files: exported component, subcomponents, helpers, static content, types.
+
+Naming Conventions
+
+- Use lowercase with dashes for directories (e.g., components/auth-wizard).
+- Favor named exports for components.
+
+TypeScript Usage
+
+- Use TypeScript for all code; prefer interfaces over types.
+- Avoid enums; use maps instead.
+- Use functional components with TypeScript interfaces.
+
+Syntax and Formatting
+
+- Use the "function" keyword for pure functions.
+- Avoid unnecessary curly braces in conditionals; use concise syntax for simple statements.
+- Use declarative JSX.
+
+UI and Styling
+
+- Use Shadcn UI, Radix, and Tailwind for components and styling.
+- Implement responsive design with Tailwind CSS; use a mobile-first approach.
+
+Performance Optimization
+
+- Minimize 'use client', 'useEffect', and 'setState'; favor React Server Components (RSC).
+- Wrap client components in Suspense with fallback.
+- Use dynamic loading for non-critical components.
+- Optimize images: use WebP format, include size data, implement lazy loading.
+
+Key Conventions
+
+- Use 'nuqs' for URL search parameter state management.
+- Optimize Web Vitals (LCP, CLS, FID).
+- Limit 'use client':
+- Favor server components and Next.js SSR.
+- Use only for Web API access in small components.
+- Avoid for data fetching or state management.
+
+Follow Next.js docs for Data Fetching, Rendering, and Routing.
+
+# About this project
+
+This is a website dedicated to the upcoming marriage in 2025/03/06 of Kaushal Subedi and Priyanka Sharma, starting their beautiful journey together as the Subedi's.
+
+Kaushal's favorite color is blue and Priyanka's is pink. Kaushal is very futuristic high tech and comes from software engineering background and is passionate about nature, motorcycles, outdoors.entrepreneurship and is currently building an ai receptionist company. Priyanka loves dancing, planning events (she is an event planner and also does software consulting during the day), travelling to new places etc. She recently started Golden Gatherings which is an event planning company that is quickly gaining customers.
