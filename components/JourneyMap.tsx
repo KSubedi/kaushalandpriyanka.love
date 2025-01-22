@@ -118,9 +118,19 @@ const HeartAnimation = () => (
     }}
     transition={{ duration: 1, delay: 2 }}
   >
-    <div className="p-2 bg-white rounded-full shadow-lg border-2 border-red-200">
+    <motion.div
+      className="p-2 bg-white rounded-full shadow-lg border-2 border-red-200"
+      animate={{
+        scale: [1, 1.15, 1],
+      }}
+      transition={{
+        duration: 0.8,
+        repeat: Infinity,
+        ease: "easeInOut",
+      }}
+    >
       <Heart className="w-6 h-6 text-red-500" fill="currentColor" />
-    </div>
+    </motion.div>
   </motion.div>
 );
 

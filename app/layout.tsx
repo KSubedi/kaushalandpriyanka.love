@@ -11,7 +11,15 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Kaushal & Priyanka",
-  description: "Kaushal & Priyanka's wedding website.",
+  description: "Join us as we begin our journey together as the Subedis",
+  icons: {
+    icon: [
+      {
+        url: "/favicon.svg",
+        type: "image/svg+xml",
+      },
+    ],
+  },
 };
 
 export default function RootLayout({
