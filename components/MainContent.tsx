@@ -4,6 +4,7 @@ import React from "react";
 import { CountdownTimer } from "@/components/CountdownTimer";
 import { motion } from "framer-motion";
 import { ClientSparkles } from "@/components/ClientSparkles";
+import { JourneyMap } from "@/components/JourneyMap";
 import {
   Heart,
   Music,
@@ -17,6 +18,7 @@ import {
   MapPin,
   Calendar,
 } from "lucide-react";
+import { SaveTheDate } from "@/components/SaveTheDate";
 
 const MandalaPattern = () => (
   <div className="absolute inset-0 pointer-events-none">
@@ -256,11 +258,8 @@ const MainContent = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="inline-block"
+              className="inline-block w-full"
             >
-              <p className="text-red-600 font-medium tracking-wide mb-4">
-                Save the Date
-              </p>
               <div className="flex justify-center items-center space-x-6 mb-4">
                 <motion.div
                   animate={{ scale: [1, 1.1, 1] }}
@@ -282,6 +281,11 @@ const MainContent = () => {
 
             <DecorativeLine />
 
+            {/* Countdown Section */}
+            <div className="py-8">
+              <CountdownTimer targetDate={weddingDate} />
+            </div>
+
             {/* Date Display */}
             <motion.div
               initial={{ opacity: 0 }}
@@ -292,14 +296,44 @@ const MainContent = () => {
               <p className="text-3xl font-light text-red-800">
                 March 6th, 2025
               </p>
-              <p className="text-lg text-amber-700">Kathmandu, Nepal</p>
+              <p className="text-lg text-amber-700">Houston, TX</p>
             </motion.div>
+
+            <div className="flex justify-center mb-8">
+              <SaveTheDate />
+            </div>
           </div>
 
-          {/* Countdown Section */}
-          <div className="py-8">
-            <CountdownTimer targetDate={weddingDate} />
-          </div>
+          {/* Journey Map Section */}
+          <section className="py-16 relative">
+            <div className="absolute inset-0 bg-gradient-to-br from-red-50/50 via-transparent to-amber-50/50 rounded-3xl" />
+            <motion.h2
+              className="text-3xl font-bold text-center text-amber-900 mb-4"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+            >
+              Our Journey
+            </motion.h2>
+            <motion.p
+              className="text-center text-gray-600 mb-12"
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.2 }}
+            >
+              From different cities to one heart
+            </motion.p>
+            <div className="bg-white/50 backdrop-blur-sm rounded-3xl p-8 shadow-xl border border-amber-100">
+              <JourneyMap />
+            </div>
+            <div className="absolute -right-20 top-20 rotate-12 opacity-10">
+              <Plane className="w-32 h-32 text-amber-300" />
+            </div>
+            <div className="absolute -left-16 bottom-20 -rotate-12 opacity-10">
+              <Heart className="w-24 h-24 text-red-300" />
+            </div>
+          </section>
 
           {/* About Us Section */}
           <section className="space-y-12">
@@ -344,31 +378,6 @@ const MainContent = () => {
           </section>
 
           <DecorativeLine />
-
-          {/* Save the Date Section */}
-          <motion.div
-            className="text-center space-y-8"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
-            <p className="text-2xl text-gray-700 italic">
-              Join us as we begin our journey together as the Subedis
-            </p>
-            <motion.button
-              className="px-10 py-4 bg-gradient-to-r from-red-600 to-amber-500 text-white rounded-full 
-                         text-lg font-medium shadow-lg hover:shadow-xl transition-all duration-300
-                         hover:from-red-500 hover:to-amber-400 relative overflow-hidden group"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <span className="relative z-10">Save the Date</span>
-              <div
-                className="absolute inset-0 bg-gradient-to-r from-amber-500 to-red-500 opacity-0 
-                            group-hover:opacity-100 transition-opacity duration-300"
-              />
-            </motion.button>
-          </motion.div>
         </motion.div>
       </div>
     </main>
