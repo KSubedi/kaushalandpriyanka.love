@@ -22,16 +22,16 @@ const TimeDisplay = ({ value, label }: TimeBlock) => (
     <div className="relative">
       <div className="absolute inset-0 bg-gradient-to-br from-red-400/20 to-amber-400/20 blur-xl rounded-2xl" />
       <div
-        className="relative bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-6 min-w-[120px]
-                    border border-amber-100"
+        className="relative bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl 
+                   p-3 sm:p-6 min-w-[80px] sm:min-w-[120px] border border-amber-100"
       >
         <span
-          className="block text-5xl font-bold bg-gradient-to-br from-red-600 to-amber-500 
-                       bg-clip-text text-transparent font-mono"
+          className="block text-3xl sm:text-5xl font-bold bg-gradient-to-br from-red-600 to-amber-500 
+                     bg-clip-text text-transparent font-mono"
         >
           {value.toString().padStart(2, "0")}
         </span>
-        <span className="block text-sm text-amber-800 font-medium mt-1 uppercase tracking-wider">
+        <span className="block text-xs sm:text-sm text-amber-800 font-medium mt-1 uppercase tracking-wider">
           {label}
         </span>
       </div>
@@ -46,7 +46,7 @@ export const CountdownTimer = ({ targetDate }: CountdownTimerProps) => {
     <div className="relative">
       <div className="absolute inset-0 bg-gradient-to-r from-red-400/10 via-amber-400/10 to-red-400/10 blur-3xl" />
       <motion.div
-        className="relative flex flex-wrap justify-center gap-6 p-8"
+        className="relative flex flex-wrap justify-center gap-3 sm:gap-6 p-4 sm:p-8"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.2 }}

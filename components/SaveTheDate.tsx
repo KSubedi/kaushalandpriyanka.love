@@ -18,15 +18,15 @@ export function SaveTheDate() {
   return (
     <motion.button
       onClick={handleSaveDate}
-      className="group relative px-8 py-3 bg-gradient-to-r from-red-600 to-amber-500 
-                 text-white rounded-full text-lg font-medium shadow-lg 
+      className="group relative px-4 sm:px-8 py-2 sm:py-3 bg-gradient-to-r from-red-600 to-amber-500 
+                 text-white rounded-full text-base sm:text-lg font-medium shadow-lg 
                  hover:shadow-xl transition-all duration-300
-                 hover:from-red-500 hover:to-amber-400"
+                 hover:from-red-500 hover:to-amber-400 w-full sm:w-auto"
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
     >
-      <span className="relative z-10 flex items-center gap-2">
-        <Calendar className="w-5 h-5" />
+      <span className="relative z-10 flex items-center justify-center gap-2">
+        <Calendar className="w-4 h-4 sm:w-5 sm:h-5" />
         Save the Date
       </span>
       <div

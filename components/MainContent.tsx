@@ -73,22 +73,25 @@ const FloatingIcon = ({
 const CoupleSection = () => {
   return (
     <motion.div
-      className="relative rounded-3xl p-16 overflow-hidden bg-gradient-to-r from-red-50/30 via-white to-amber-50/30"
+      className="relative rounded-3xl p-6 sm:p-8 md:p-16 overflow-hidden bg-gradient-to-r from-red-50/30 via-white to-amber-50/30"
       initial={{ opacity: 0 }}
       whileInView={{ opacity: 1 }}
       viewport={{ once: true }}
     >
       {/* Content */}
-      <div className="relative z-10 flex items-center justify-between max-w-5xl mx-auto">
+      <div className="relative z-10 flex flex-col lg:flex-row items-center lg:items-start gap-8 lg:gap-0 lg:justify-between max-w-5xl mx-auto">
+        {/* Kaushal's Section */}
         <motion.div
-          className="w-[45%] space-y-6"
+          className="w-full lg:w-[45%] space-y-4 sm:space-y-6 text-center lg:text-left"
           initial={{ x: -50, opacity: 0 }}
           whileInView={{ x: 0, opacity: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
         >
-          <h3 className="text-4xl font-bold text-red-700">Kaushal</h3>
-          <p className="text-gray-700 leading-relaxed text-lg">
+          <h3 className="text-3xl sm:text-4xl font-bold text-red-700">
+            Kaushal
+          </h3>
+          <p className="text-base sm:text-lg text-gray-700 leading-relaxed">
             A dreamer who loves building cool tech and chasing adventures. When
             not coding the next big thing, you&apos;ll find him exploring
             mountain trails on his motorcycle or planning the next outdoor
@@ -96,10 +99,11 @@ const CoupleSection = () => {
           </p>
         </motion.div>
 
-        <div className="relative flex items-center justify-center w-24">
+        {/* Heart Divider */}
+        <div className="relative flex items-center justify-center w-24 h-24 lg:h-auto">
           <div className="absolute inset-0 flex items-center justify-center">
             <motion.div
-              className="w-px h-32 bg-gradient-to-b from-transparent via-amber-300 to-transparent"
+              className="hidden lg:block w-px h-32 bg-gradient-to-b from-transparent via-amber-300 to-transparent"
               initial={{ scaleY: 0 }}
               whileInView={{ scaleY: 1 }}
               viewport={{ once: true }}
@@ -121,15 +125,18 @@ const CoupleSection = () => {
           </motion.div>
         </div>
 
+        {/* Priyanka's Section */}
         <motion.div
-          className="w-[45%] space-y-6 text-right"
+          className="w-full lg:w-[45%] space-y-4 sm:space-y-6 text-center lg:text-right"
           initial={{ x: 50, opacity: 0 }}
           whileInView={{ x: 0, opacity: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
         >
-          <h3 className="text-4xl font-bold text-amber-700">Priyanka</h3>
-          <p className="text-gray-700 leading-relaxed text-lg">
+          <h3 className="text-3xl sm:text-4xl font-bold text-amber-700">
+            Priyanka
+          </h3>
+          <p className="text-base sm:text-lg text-gray-700 leading-relaxed">
             A free spirit with a contagious smile and endless creativity.
             Dancing through life while turning ordinary moments into
             unforgettable memories. Always ready for the next adventure or a
@@ -145,19 +152,22 @@ const CoupleSection = () => {
           icon={Code}
           color="text-red-400"
           delay={0}
-          position={{ x: 12, y: 30 }}
+          position={{ x: 5, y: 20 }}
+          size="w-5 h-5 sm:w-6 sm:h-6"
         />
         <FloatingIcon
           icon={Bike}
           color="text-red-500"
           delay={2}
-          position={{ x: 18, y: 60 }}
+          position={{ x: 12, y: 50 }}
+          size="w-5 h-5 sm:w-6 sm:h-6"
         />
         <FloatingIcon
           icon={Mountain}
           color="text-red-400"
           delay={4}
-          position={{ x: 8, y: 75 }}
+          position={{ x: 8, y: 80 }}
+          size="w-5 h-5 sm:w-6 sm:h-6"
         />
 
         {/* Priyanka's icons */}
@@ -165,19 +175,22 @@ const CoupleSection = () => {
           icon={Music}
           color="text-amber-400"
           delay={1}
-          position={{ x: 88, y: 35 }}
+          position={{ x: 92, y: 25 }}
+          size="w-5 h-5 sm:w-6 sm:h-6"
         />
         <FloatingIcon
           icon={Calendar}
           color="text-amber-500"
           delay={3}
-          position={{ x: 82, y: 65 }}
+          position={{ x: 88, y: 55 }}
+          size="w-5 h-5 sm:w-6 sm:h-6"
         />
         <FloatingIcon
           icon={Plane}
           color="text-amber-400"
           delay={5}
-          position={{ x: 92, y: 80 }}
+          position={{ x: 95, y: 85 }}
+          size="w-5 h-5 sm:w-6 sm:h-6"
         />
       </div>
     </motion.div>
@@ -253,28 +266,28 @@ const MainContent = () => {
           className="space-y-24 max-w-6xl mx-auto"
         >
           {/* Header Section */}
-          <div className="text-center space-y-6">
+          <div className="text-center space-y-6 px-4">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
               className="inline-block w-full"
             >
-              <div className="flex justify-center items-center space-x-6 mb-4">
+              <div className="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-6 mb-4">
                 <motion.div
                   animate={{ scale: [1, 1.1, 1] }}
                   transition={{ duration: 2, repeat: Infinity }}
                 >
                   <Heart
-                    className="w-10 h-10 text-red-500"
+                    className="w-8 h-8 sm:w-10 sm:h-10 text-red-500"
                     fill="currentColor"
                   />
                 </motion.div>
-                <h1 className="text-7xl font-bold text-amber-900 tracking-tight">
+                <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold text-amber-900 tracking-tight">
                   Kaushal & Priyanka
                 </h1>
               </div>
-              <p className="text-2xl text-amber-800 font-light italic">
+              <p className="text-xl sm:text-2xl text-amber-800 font-light italic mt-4">
                 are beginning their forever
               </p>
             </motion.div>
@@ -293,13 +306,13 @@ const MainContent = () => {
               transition={{ delay: 0.4 }}
               className="space-y-2"
             >
-              <p className="text-3xl font-light text-red-800">
+              <p className="text-2xl sm:text-3xl font-light text-red-800">
                 March 6th, 2025
               </p>
-              <p className="text-lg text-amber-700">Houston, TX</p>
+              <p className="text-base sm:text-lg text-amber-700">Houston, TX</p>
             </motion.div>
 
-            <div className="flex justify-center mb-8">
+            <div className="flex justify-center mt-8">
               <SaveTheDate />
             </div>
           </div>

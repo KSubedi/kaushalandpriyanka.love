@@ -1,0 +1,422 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { Invite } from "@/utils/interfaces/InviteType";
+import { Copy, Check, Plus } from "lucide-react";
+
+export default function InvitesPage() {
+  const [invites, setInvites] = useState<Invite[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [showGenerateForm, setShowGenerateForm] = useState(false);
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    additional_guests: 0,
+    events: {
+      haldi: false,
+      sangeet: false,
+      wedding: false,
+      reception: false,
+    },
+  });
+
+  const fetchInvites = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await fetch("/api/admin/invites");
+      if (!response.ok) {
+        throw new Error("Failed to fetch invites");
+      }
+      const data = await response.json();
+      setInvites(data.invites);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to load invites");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchInvites();
+  }, []);
+
+  const copyInviteLink = async (id: string) => {
+    const link = `${window.location.origin}/invite/${id}`;
+    await navigator.clipboard.writeText(link);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
+
+  const handleGenerateSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsGenerating(true);
+    setError(null);
+    try {
+      console.log("Generating invite with data:", formData);
+      const response = await fetch("/api/admin/invites", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to generate invite");
+      }
+
+      console.log("Generated invite:", data.invite);
+
+      // Update the invites list with the new invite
+      setInvites((prevInvites) => [data.invite, ...prevInvites]);
+
+      // Close the form and reset
+      setShowGenerateForm(false);
+      setFormData({
+        name: "",
+        email: "",
+        phone: "",
+        additional_guests: 0,
+        events: {
+          haldi: false,
+          sangeet: false,
+          wedding: false,
+          reception: false,
+        },
+      });
+    } catch (err) {
+      console.error("Error generating invite:", err);
+      setError(
+        err instanceof Error ? err.message : "Failed to generate invite"
+      );
+      // Keep the form open if there's an error
+      setShowGenerateForm(true);
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    const { name, value, type } = e.target;
+    if (type === "checkbox") {
+      const checkbox = e.target as HTMLInputElement;
+      setFormData((prev) => ({
+        ...prev,
+        events: {
+          ...prev.events,
+          [name.replace("event_", "")]: checkbox.checked,
+        },
+      }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
+  };
+
+  return (
+    <div className="space-y-8">
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-bold text-gray-900">Manage Invites</h1>
+        <button
+          onClick={() => setShowGenerateForm(true)}
+          className="inline-flex items-center px-4 py-2 rounded-lg bg-gradient-to-r from-amber-500 to-red-500 text-white font-medium hover:from-amber-600 hover:to-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500"
+        >
+          <Plus className="w-5 h-5 mr-2" />
+          Generate New Invite
+        </button>
+      </div>
+
+      {showGenerateForm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-semibold text-gray-900">
+                Generate New Invite
+              </h2>
+              <button
+                onClick={() => setShowGenerateForm(false)}
+                className="text-gray-500 hover:text-gray-700 transition-colors"
+              >
+                <span className="text-2xl">×</span>
+              </button>
+            </div>
+
+            <form onSubmit={handleGenerateSubmit} className="space-y-6">
+              <div className="space-y-5">
+                <div>
+                  <label
+                    htmlFor="name"
+                    className="block text-sm font-medium text-gray-900 mb-2"
+                  >
+                    Name (optional)
+                  </label>
+                  <input
+                    type="text"
+                    name="name"
+                    id="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    className="block w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-900 placeholder-gray-500 focus:border-amber-500 focus:ring-2 focus:ring-amber-500 focus:ring-opacity-50 sm:text-sm"
+                    placeholder="Enter guest name"
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="email"
+                    className="block text-sm font-medium text-gray-900 mb-2"
+                  >
+                    Email (optional)
+                  </label>
+                  <input
+                    type="email"
+                    name="email"
+                    id="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    className="block w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-900 placeholder-gray-500 focus:border-amber-500 focus:ring-2 focus:ring-amber-500 focus:ring-opacity-50 sm:text-sm"
+                    placeholder="Enter guest email"
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="phone"
+                    className="block text-sm font-medium text-gray-900 mb-2"
+                  >
+                    Phone (optional)
+                  </label>
+                  <input
+                    type="tel"
+                    name="phone"
+                    id="phone"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    className="block w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-900 placeholder-gray-500 focus:border-amber-500 focus:ring-2 focus:ring-amber-500 focus:ring-opacity-50 sm:text-sm"
+                    placeholder="Enter guest phone"
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="additional_guests"
+                    className="block text-sm font-medium text-gray-900 mb-2"
+                  >
+                    Additional Guests Allowed
+                  </label>
+                  <input
+                    type="number"
+                    name="additional_guests"
+                    id="additional_guests"
+                    value={formData.additional_guests}
+                    onChange={handleChange}
+                    min="0"
+                    max="5"
+                    className="block w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-900 placeholder-gray-500 focus:border-amber-500 focus:ring-2 focus:ring-amber-500 focus:ring-opacity-50 sm:text-sm"
+                    placeholder="Enter number (0-5)"
+                  />
+                  <p className="mt-2 text-sm text-gray-500">
+                    Maximum number of additional guests allowed (0-5)
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-900 mb-3">
+                    Events
+                  </label>
+                  <div className="space-y-3 bg-gray-50 rounded-lg p-4 border border-gray-200">
+                    {Object.entries(formData.events).map(([event, checked]) => (
+                      <label
+                        key={event}
+                        className="flex items-center space-x-3 cursor-pointer"
+                      >
+                        <input
+                          type="checkbox"
+                          name={`event_${event}`}
+                          checked={checked}
+                          onChange={handleChange}
+                          className="h-4 w-4 rounded border-gray-300 text-amber-600 focus:ring-amber-500"
+                        />
+                        <span className="text-sm text-gray-900">
+                          {event.charAt(0).toUpperCase() + event.slice(1)}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-end space-x-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowGenerateForm(false)}
+                  className="px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isGenerating}
+                  className="px-4 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-amber-500 to-red-500 rounded-lg hover:from-amber-600 hover:to-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 disabled:opacity-50"
+                >
+                  {isGenerating ? "Generating..." : "Generate Invite"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      <div className="bg-white shadow rounded-lg overflow-hidden">
+        <div className="px-6 py-5 border-b border-gray-200">
+          <h3 className="text-lg font-semibold text-gray-900">
+            Generated Invites
+          </h3>
+        </div>
+        {isLoading ? (
+          <div className="p-8 text-center">
+            <div className="animate-spin w-8 h-8 border-4 border-amber-500 border-t-transparent rounded-full mx-auto" />
+            <p className="mt-4 text-gray-500">Loading invites...</p>
+          </div>
+        ) : error ? (
+          <div className="p-8 text-center text-red-600">{error}</div>
+        ) : invites.length === 0 ? (
+          <div className="p-8 text-center text-gray-500">
+            No invites generated yet.
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                    Guest Info
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                    Events
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                    Created
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {invites.map((invite) => (
+                  <tr key={invite.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4">
+                      {invite.name || invite.email || invite.phone ? (
+                        <div className="space-y-1">
+                          {invite.name && (
+                            <div className="flex items-center text-sm">
+                              <span className="font-medium text-gray-900">
+                                {invite.name}
+                              </span>
+                            </div>
+                          )}
+                          {invite.email && (
+                            <div className="flex items-center text-sm">
+                              <span className="text-gray-500 w-14">Email:</span>
+                              <span className="text-gray-700 ml-2">
+                                {invite.email}
+                              </span>
+                            </div>
+                          )}
+                          {invite.phone && (
+                            <div className="flex items-center text-sm">
+                              <span className="text-gray-500 w-14">Phone:</span>
+                              <span className="text-gray-700 ml-2">
+                                {invite.phone}
+                              </span>
+                            </div>
+                          )}
+                          {typeof invite.additional_guests === "number" &&
+                            invite.additional_guests > 0 && (
+                              <div className="flex items-center text-sm">
+                                <span className="text-gray-500 w-14">
+                                  Guests:
+                                </span>
+                                <span className="text-gray-700 ml-2">
+                                  +{invite.additional_guests}
+                                </span>
+                              </div>
+                            )}
+                        </div>
+                      ) : (
+                        <span className="text-sm text-gray-500 italic">
+                          No pre-filled info
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex flex-wrap gap-1">
+                        {Object.entries(invite.events)
+                          .filter(([, isIncluded]) => isIncluded)
+                          .map(([event]) => (
+                            <span
+                              key={`${invite.id}-${event}`}
+                              className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800"
+                            >
+                              {event.charAt(0).toUpperCase() + event.slice(1)}
+                            </span>
+                          ))}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-700">
+                      {new Date(invite.created_at).toLocaleDateString()}
+                    </td>
+                    <td className="px-6 py-4">
+                      {invite.response ? (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                          Responded
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                          Pending
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4">
+                      <button
+                        onClick={() => copyInviteLink(invite.id)}
+                        className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-amber-700 bg-amber-50 rounded-lg hover:bg-amber-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-colors"
+                      >
+                        {copiedId === invite.id ? (
+                          <>
+                            <Check className="h-4 w-4 mr-1.5" />
+                            Copied!
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="h-4 w-4 mr-1.5" />
+                            Copy Link
+                          </>
+                        )}
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
