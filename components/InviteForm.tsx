@@ -14,6 +14,7 @@ import {
   Phone,
   Sun,
   User,
+  Users,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import ReactConfetti from "react-confetti";
@@ -388,7 +389,7 @@ export function InviteForm({ inviteId }: InviteFormProps) {
 
         <div className="relative">
           <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-            <User className="h-5 w-5 text-gray-400" />
+            <Users className="h-5 w-5 text-gray-400" />
           </div>
           <input
             type="number"
