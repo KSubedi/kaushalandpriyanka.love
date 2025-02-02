@@ -5,6 +5,7 @@ import { CountdownTimer } from "@/components/CountdownTimer";
 import { motion } from "framer-motion";
 import { ClientSparkles } from "@/components/ClientSparkles";
 import { JourneyMap } from "@/components/JourneyMap";
+import Image from "next/image";
 import {
   Heart,
   Music,
@@ -78,6 +79,37 @@ const CoupleSection = () => {
       whileInView={{ opacity: 1 }}
       viewport={{ once: true }}
     >
+      {/* Couple Image */}
+      <motion.div
+        className="relative w-[100vw] h-[24rem] sm:h-[32rem] left-[50%] right-[50%] ml-[-50vw] mr-[-50vw] mb-12"
+        initial={{ scale: 0.8, opacity: 0 }}
+        whileInView={{ scale: 1, opacity: 1 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.8 }}
+      >
+        <div className="absolute inset-0 bg-gradient-to-br from-red-200 to-amber-200 blur-xl opacity-50" />
+        <div className="relative w-full h-full overflow-hidden">
+          <Image
+            src="/us.jpg"
+            alt="Kaushal and Priyanka"
+            fill
+            className="object-cover object-bottom"
+            sizes="100vw"
+            priority
+          />
+          {/* Gradient Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-white/80 via-white/20 to-transparent" />
+        </div>
+      </motion.div>
+
+      {/* Section Title */}
+      <div className="text-center mb-8">
+        <h2 className="text-3xl sm:text-4xl font-bold text-amber-800">
+          Our Story
+        </h2>
+        <p className="text-gray-600 mt-2">Two paths becoming one</p>
+      </div>
+
       {/* Content */}
       <div className="relative z-10 flex flex-col lg:flex-row items-center lg:items-start gap-8 lg:gap-0 lg:justify-between max-w-5xl mx-auto">
         {/* Kaushal's Section */}
@@ -350,10 +382,6 @@ const MainContent = () => {
 
           {/* About Us Section */}
           <section className="space-y-12">
-            <div className="text-center">
-              <h2 className="text-3xl font-bold text-amber-800">Our Story</h2>
-              <p className="text-gray-700 mt-2">Two paths becoming one</p>
-            </div>
             <CoupleSection />
           </section>
 

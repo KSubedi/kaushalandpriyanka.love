@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { ClientSparkles } from "@/components/ClientSparkles";
 import { Suspense } from "react";
 import { use } from "react";
+import Image from "next/image";
 
 function InvitePageContent({ id }: { id: string }) {
   return (
@@ -43,6 +44,16 @@ function InvitePageContent({ id }: { id: string }) {
                 transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
                 className="relative mx-auto"
               >
+                <div className="relative w-48 h-48 mx-auto mb-8 rounded-full overflow-hidden border-4 border-amber-200 shadow-lg">
+                  <Image
+                    src="/us2.jpg"
+                    alt="Kaushal and Priyanka"
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 192px, 192px"
+                    priority
+                  />
+                </div>
                 <div className="w-20 h-20 bg-gradient-to-br from-red-400 to-amber-400 rounded-full mx-auto flex items-center justify-center">
                   <Heart className="w-10 h-10 text-white" fill="currentColor" />
                 </div>
