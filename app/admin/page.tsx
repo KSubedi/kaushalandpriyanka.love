@@ -90,10 +90,10 @@ export default function AdminDashboard() {
       <div className="grid gap-6">
         {isLoading ? (
           // Loading skeleton for stats section
-          <div className="bg-white shadow rounded-xl p-6 animate-pulse">
+          <div className="bg-white shadow rounded-xl p-4 sm:p-6 animate-pulse">
             <div className="space-y-4">
               <div className="h-8 bg-gray-200 rounded w-1/4"></div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {Array.from({ length: 6 }).map((_, index) => (
                   <div
                     key={`loading-stat-${index}`}
@@ -107,16 +107,16 @@ export default function AdminDashboard() {
             </div>
           </div>
         ) : (
-          <div className="bg-white shadow rounded-xl p-6">
+          <div className="bg-white shadow rounded-xl p-4 sm:p-6">
             <h2 className="text-xl font-semibold text-gray-900 mb-6">
               RSVP Overview
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {/* Summary Cards */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="col-span-full lg:col-span-1 bg-gradient-to-br from-amber-50 to-white rounded-xl p-6 border border-amber-100"
+                className="col-span-full lg:col-span-1 bg-gradient-to-br from-amber-50 to-white rounded-xl p-4 sm:p-6 border border-amber-100"
               >
                 <div className="space-y-6">
                   <div>
@@ -126,7 +126,7 @@ export default function AdminDashboard() {
                         Total Responses
                       </h3>
                     </div>
-                    <p className="text-3xl font-bold text-amber-900">
+                    <p className="text-2xl sm:text-3xl font-bold text-amber-900">
                       {responses.length}
                     </p>
                   </div>
@@ -137,7 +137,7 @@ export default function AdminDashboard() {
                         Total Guests
                       </h3>
                     </div>
-                    <p className="text-3xl font-bold text-amber-900">
+                    <p className="text-2xl sm:text-3xl font-bold text-amber-900">
                       {stats.totalGuests}
                     </p>
                   </div>
@@ -149,7 +149,7 @@ export default function AdminDashboard() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
-                className="col-span-full lg:col-span-2 grid grid-cols-2 gap-4"
+                className="col-span-full lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4"
               >
                 {/* Haldi Stats */}
                 <div className="bg-amber-50 rounded-lg p-4 border border-amber-100">
@@ -234,7 +234,7 @@ export default function AdminDashboard() {
 
       {/* Responses Table */}
       <div className="bg-white shadow rounded-lg overflow-hidden">
-        <div className="px-6 py-5 border-b border-gray-200">
+        <div className="px-4 sm:px-6 py-5 border-b border-gray-200">
           <h3 className="text-lg font-semibold text-gray-900">
             RSVP Responses
           </h3>
@@ -253,22 +253,22 @@ export default function AdminDashboard() {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                  <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                     Name
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                  <th className="hidden sm:table-cell px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                     Email
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                  <th className="hidden md:table-cell px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                     Phone
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                  <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                     Additional Guests
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                  <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                     Events
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                  <th className="hidden lg:table-cell px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                     Response Date
                   </th>
                 </tr>
@@ -279,16 +279,16 @@ export default function AdminDashboard() {
                     key={`response-${response.id}`}
                     className="hover:bg-gray-50"
                   >
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                       {response.name}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                    <td className="hidden sm:table-cell px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                       {response.email}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                    <td className="hidden md:table-cell px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                       {response.phone}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                       {response.additional_guests > 0 ? (
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
                           +{response.additional_guests}
@@ -297,20 +297,22 @@ export default function AdminDashboard() {
                         "-"
                       )}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      {response?.events &&
-                        Object.entries(response.events)
-                          .filter(([, isAttending]) => isAttending)
-                          .map(([event]) => (
-                            <span
-                              key={`${response.id}-${event}`}
-                              className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800 mr-1"
-                            >
-                              {event.charAt(0).toUpperCase() + event.slice(1)}
-                            </span>
-                          ))}
+                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
+                      <div className="flex flex-wrap gap-1">
+                        {response?.events &&
+                          Object.entries(response.events)
+                            .filter(([, isAttending]) => isAttending)
+                            .map(([event]) => (
+                              <span
+                                key={`${response.id}-${event}`}
+                                className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800"
+                              >
+                                {event.charAt(0).toUpperCase() + event.slice(1)}
+                              </span>
+                            ))}
+                      </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                    <td className="hidden lg:table-cell px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                       {new Date(response.created_at).toLocaleDateString()}
                     </td>
                   </tr>
