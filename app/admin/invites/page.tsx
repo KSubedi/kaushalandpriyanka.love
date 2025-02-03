@@ -15,12 +15,13 @@ export default function InvitesPage() {
     name: "",
     email: "",
     phone: "",
-    additional_guests: 0,
+    additional_guests: 5,
     events: {
       haldi: false,
       sangeet: false,
       wedding: false,
       reception: false,
+      coloradoReception: false,
     },
     is_template: false,
     location: "houston" as "houston" | "colorado" | "",
@@ -86,12 +87,13 @@ export default function InvitesPage() {
         name: "",
         email: "",
         phone: "",
-        additional_guests: 0,
+        additional_guests: 5,
         events: {
           haldi: false,
           sangeet: false,
           wedding: false,
           reception: false,
+          coloradoReception: false,
         },
         is_template: false,
         location: "houston",
@@ -107,6 +109,21 @@ export default function InvitesPage() {
     } finally {
       setIsGenerating(false);
     }
+  };
+
+  const handleLocationChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const location = e.target.value as "houston" | "colorado" | "";
+    setFormData((prev) => ({
+      ...prev,
+      location,
+      events: {
+        haldi: location === "houston" ? prev.events.haldi : false,
+        sangeet: location === "houston" ? prev.events.sangeet : false,
+        wedding: location === "houston" ? prev.events.wedding : false,
+        reception: location === "houston" ? prev.events.reception : false,
+        coloradoReception: location === "colorado" ? true : false,
+      },
+    }));
   };
 
   const handleChange = (
@@ -129,6 +146,8 @@ export default function InvitesPage() {
           },
         }));
       }
+    } else if (name === "location") {
+      handleLocationChange(e as React.ChangeEvent<HTMLSelectElement>);
     } else {
       setFormData((prev) => ({
         ...prev,
@@ -411,29 +430,6 @@ export default function InvitesPage() {
 
                 <div>
                   <label
-                    htmlFor="additional_guests"
-                    className="block text-sm font-medium text-gray-900 mb-2"
-                  >
-                    Additional Guests Allowed
-                  </label>
-                  <input
-                    type="number"
-                    name="additional_guests"
-                    id="additional_guests"
-                    value={formData.additional_guests}
-                    onChange={handleChange}
-                    min="0"
-                    max="5"
-                    className="block w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-900 placeholder-gray-500 focus:border-amber-500 focus:ring-2 focus:ring-amber-500 focus:ring-opacity-50 sm:text-sm"
-                    placeholder="Enter number (0-5)"
-                  />
-                  <p className="mt-2 text-sm text-gray-500">
-                    Maximum number of additional guests allowed (0-5)
-                  </p>
-                </div>
-
-                <div>
-                  <label
                     htmlFor="location"
                     className="block text-sm font-medium text-gray-900 mb-2"
                   >
@@ -516,23 +512,36 @@ export default function InvitesPage() {
                     Events
                   </label>
                   <div className="space-y-3 bg-gray-50 rounded-lg p-4 border border-gray-200">
-                    {Object.entries(formData.events).map(([event, checked]) => (
-                      <label
-                        key={event}
-                        className="flex items-center space-x-3 cursor-pointer"
-                      >
-                        <input
-                          type="checkbox"
-                          name={`event_${event}`}
-                          checked={checked}
-                          onChange={handleChange}
-                          className="h-4 w-4 rounded border-gray-300 text-amber-600 focus:ring-amber-500"
-                        />
-                        <span className="text-sm text-gray-900">
-                          {event.charAt(0).toUpperCase() + event.slice(1)}
-                        </span>
-                      </label>
-                    ))}
+                    {Object.entries(formData.events).map(([event, checked]) => {
+                      // Only show houston events for houston location and colorado events for colorado location
+                      const shouldShow =
+                        (formData.location === "houston" &&
+                          event !== "coloradoReception") ||
+                        (formData.location === "colorado" &&
+                          event === "coloradoReception");
+
+                      if (!shouldShow) return null;
+
+                      return (
+                        <label
+                          key={event}
+                          className="flex items-center space-x-3 cursor-pointer"
+                        >
+                          <input
+                            type="checkbox"
+                            name={`event_${event}`}
+                            checked={checked}
+                            onChange={handleChange}
+                            className="h-4 w-4 rounded border-gray-300 text-amber-600 focus:ring-amber-500"
+                          />
+                          <span className="text-sm text-gray-900">
+                            {event === "coloradoReception"
+                              ? "Colorado Reception"
+                              : event.charAt(0).toUpperCase() + event.slice(1)}
+                          </span>
+                        </label>
+                      );
+                    })}
                   </div>
                 </div>
               </div>

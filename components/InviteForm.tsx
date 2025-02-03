@@ -72,6 +72,11 @@ const venues: Record<string, Venue> = {
     address: "17439 Self Rd, Tomball, TX 77377",
     coordinates: [30.0933, -95.6747], // Approximate coordinates
   },
+  bradburn: {
+    name: "The Establishment at Bradburn Village",
+    address: "11885 Bradburn Blvd, Westminster, CO 80031",
+    coordinates: [39.9139, -105.0574], // Approximate coordinates
+  },
 };
 
 const EventInfo = {
@@ -83,6 +88,7 @@ const EventInfo = {
     date: "March 4th, 2025",
     time: "1:00 PM – 3:00 PM",
     venue: venues.ashelynnManor,
+    location: "houston",
   },
   sangeet: {
     title: "Sangeet Night",
@@ -92,6 +98,7 @@ const EventInfo = {
     date: "March 4th, 2025",
     time: "6:30 PM – 11:00 PM",
     venue: venues.ashelynnManor,
+    location: "houston",
   },
   wedding: {
     title: "Wedding Ceremony",
@@ -101,6 +108,7 @@ const EventInfo = {
     date: "March 6th, 2025",
     time: "10:00 AM – 2:00 PM",
     venue: venues.agOutdoor,
+    location: "houston",
   },
   reception: {
     title: "Reception Celebration",
@@ -110,6 +118,17 @@ const EventInfo = {
     date: "March 6th, 2025",
     time: "6:00 PM – 11:30 PM",
     venue: venues.agOutdoor,
+    location: "houston",
+  },
+  coloradoReception: {
+    title: "Colorado Reception",
+    description:
+      "Join us for a special evening of celebration in Colorado! We're excited to continue our wedding festivities with our Colorado family and friends.",
+    icon: PartyPopper,
+    date: "March 9th, 2025",
+    time: "6:00 PM",
+    venue: venues.bradburn,
+    location: "colorado",
   },
 };
 

@@ -9,6 +9,7 @@ export interface Invite {
     sangeet: boolean;
     wedding: boolean;
     reception: boolean;
+    coloradoReception: boolean;
   };
   created_at: string;
   response?: InviteResponse;
@@ -31,6 +32,7 @@ export interface InviteResponse {
     sangeet: boolean;
     wedding: boolean;
     reception: boolean;
+    coloradoReception: boolean;
   };
   created_at: string;
   updated_at: string;
