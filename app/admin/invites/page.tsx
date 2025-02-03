@@ -23,6 +23,7 @@ export default function InvitesPage() {
       reception: false,
     },
     is_template: false,
+    location: "houston" as "houston" | "colorado" | "",
   });
 
   const fetchInvites = async () => {
@@ -92,6 +93,7 @@ export default function InvitesPage() {
           reception: false,
         },
         is_template: false,
+        location: "houston",
       });
     } catch (err) {
       console.error("Error generating invite:", err);
@@ -421,6 +423,30 @@ export default function InvitesPage() {
                   />
                   <p className="mt-2 text-sm text-gray-500">
                     Maximum number of additional guests allowed (0-5)
+                  </p>
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="location"
+                    className="block text-sm font-medium text-gray-900 mb-2"
+                  >
+                    Location
+                  </label>
+                  <select
+                    name="location"
+                    id="location"
+                    value={formData.location}
+                    onChange={handleChange}
+                    className="block w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-900 focus:border-amber-500 focus:ring-2 focus:ring-amber-500 focus:ring-opacity-50 sm:text-sm"
+                  >
+                    <option value="">Select Location</option>
+                    <option value="houston">Houston Events</option>
+                    <option value="colorado">Colorado Reception</option>
+                  </select>
+                  <p className="mt-2 text-sm text-gray-500">
+                    Select the location to determine the name order and event
+                    details
                   </p>
                 </div>
 

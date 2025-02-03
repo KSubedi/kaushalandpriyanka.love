@@ -21,6 +21,7 @@ interface GenerateInviteRequest {
     reception: boolean;
   };
   is_template?: boolean;
+  location?: "houston" | "colorado";
 }
 
 export async function GET() {
@@ -101,6 +102,7 @@ export async function POST(request: Request) {
         ...(data.phone && { phone: data.phone }),
         is_template: data.is_template || false,
         responses: data.is_template ? [] : undefined,
+        location: data.location,
       };
 
       console.log("Created invite object:", invite);

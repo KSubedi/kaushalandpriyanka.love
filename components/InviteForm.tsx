@@ -118,7 +118,7 @@ const COUPLE_INFO = {
     name: "Kaushal Subedi",
     parents: {
       father: "Mr. Krishna Raj Subedi",
-      mother: "Mrs. Suna Kumari Sapkota Subedi",
+      mother: "Mrs. Sona Sapkota Subedi",
     },
   },
   bride: {
@@ -132,6 +132,35 @@ const COUPLE_INFO = {
     english: "March 6th, 2025",
     vikramSamvat: "Falgun 25, 2081", // You may want to verify this conversion
   },
+  noGiftsMessage:
+    "We're so excited to have you with us on our special day—your presence is the greatest gift we could ask for! We kindly request that no boxed gifts or flowers be brought to our celebration. Your love and support mean everything to us!",
+};
+
+// Add a function to get the couple details based on location
+const getCoupleDetails = (location?: string) => {
+  if (location === "houston") {
+    return {
+      firstPerson: {
+        name: COUPLE_INFO.bride.name,
+        parents: COUPLE_INFO.bride.parents,
+      },
+      secondPerson: {
+        name: COUPLE_INFO.groom.name,
+        parents: COUPLE_INFO.groom.parents,
+      },
+    };
+  }
+  // Default to Colorado order (or any other location)
+  return {
+    firstPerson: {
+      name: COUPLE_INFO.groom.name,
+      parents: COUPLE_INFO.groom.parents,
+    },
+    secondPerson: {
+      name: COUPLE_INFO.bride.name,
+      parents: COUPLE_INFO.bride.parents,
+    },
+  };
 };
 
 export function InviteForm({ inviteId }: InviteFormProps) {
@@ -386,38 +415,49 @@ export function InviteForm({ inviteId }: InviteFormProps) {
 
           {/* Couple Names and Parents */}
           <div className="space-y-10 py-8">
-            {/* Groom's Details */}
-            <div className="space-y-3">
-              <h3
-                className={`${playfair.className} text-3xl md:text-4xl text-amber-800 leading-relaxed`}
-              >
-                {COUPLE_INFO.groom.name}
-              </h3>
-              <p className="text-gray-600 italic text-lg">
-                (Son of {COUPLE_INFO.groom.parents.father} &{" "}
-                {COUPLE_INFO.groom.parents.mother})
-              </p>
-            </div>
+            {/* First Person's Details */}
+            {(() => {
+              const { firstPerson, secondPerson } = getCoupleDetails(
+                invite?.location
+              );
+              return (
+                <>
+                  <div className="space-y-3">
+                    <h3
+                      className={`${playfair.className} text-3xl md:text-4xl text-amber-800 leading-relaxed`}
+                    >
+                      {firstPerson.name}
+                    </h3>
+                    <p className="text-gray-600 italic text-lg">
+                      ({invite?.location === "houston" ? "Daughter" : "Son"} of{" "}
+                      {firstPerson.parents.father} &{" "}
+                      {firstPerson.parents.mother})
+                    </p>
+                  </div>
 
-            {/* Decorative "and" */}
-            <div
-              className={`${playfair.className} text-2xl text-amber-700 italic`}
-            >
-              and
-            </div>
+                  {/* Decorative "and" */}
+                  <div
+                    className={`${playfair.className} text-2xl text-amber-700 italic`}
+                  >
+                    and
+                  </div>
 
-            {/* Bride's Details */}
-            <div className="space-y-3">
-              <h3
-                className={`${playfair.className} text-3xl md:text-4xl text-amber-800 leading-relaxed`}
-              >
-                {COUPLE_INFO.bride.name}
-              </h3>
-              <p className="text-gray-600 italic text-lg">
-                (Daughter of {COUPLE_INFO.bride.parents.father} &{" "}
-                {COUPLE_INFO.bride.parents.mother})
-              </p>
-            </div>
+                  {/* Second Person's Details */}
+                  <div className="space-y-3">
+                    <h3
+                      className={`${playfair.className} text-3xl md:text-4xl text-amber-800 leading-relaxed`}
+                    >
+                      {secondPerson.name}
+                    </h3>
+                    <p className="text-gray-600 italic text-lg">
+                      ({invite?.location === "houston" ? "Son" : "Daughter"} of{" "}
+                      {secondPerson.parents.father} &{" "}
+                      {secondPerson.parents.mother})
+                    </p>
+                  </div>
+                </>
+              );
+            })()}
           </div>
 
           {/* Invitation Text */}
@@ -439,6 +479,11 @@ export function InviteForm({ inviteId }: InviteFormProps) {
               grace this auspicious occasion and shower us with your love and
               blessings.
             </p>
+            <div className="mt-8 p-6 bg-amber-50 rounded-lg">
+              <p className="text-lg text-amber-800 leading-relaxed">
+                {COUPLE_INFO.noGiftsMessage}
+              </p>
+            </div>
           </div>
         </div>
       </div>

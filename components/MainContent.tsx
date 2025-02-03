@@ -1,25 +1,24 @@
 "use client";
 
-import React from "react";
 import { CountdownTimer } from "@/components/CountdownTimer";
-import { motion } from "framer-motion";
-import { ClientSparkles } from "@/components/ClientSparkles";
 import { JourneyMap } from "@/components/JourneyMap";
-import Image from "next/image";
-import {
-  Heart,
-  Music,
-  Sun,
-  PartyPopper,
-  Flower,
-  Plane,
-  Code,
-  Bike,
-  Mountain,
-  MapPin,
-  Calendar,
-} from "lucide-react";
 import { SaveTheDate } from "@/components/SaveTheDate";
+import { motion } from "framer-motion";
+import {
+  Bike,
+  Calendar,
+  Code,
+  Flower,
+  Heart,
+  MapPin,
+  Mountain,
+  Music,
+  PartyPopper,
+  Plane,
+  Sun,
+} from "lucide-react";
+import Image from "next/image";
+import React from "react";
 
 const MandalaPattern = () => (
   <div className="absolute inset-0 pointer-events-none">
@@ -288,7 +287,6 @@ const MainContent = () => {
   return (
     <main className="min-h-screen bg-white font-inter relative overflow-hidden">
       <MandalaPattern />
-      <ClientSparkles className="absolute inset-0 opacity-20" />
 
       <div className="container mx-auto px-4 py-20 relative z-10">
         <motion.div
