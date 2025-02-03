@@ -441,18 +441,11 @@ export function InviteForm({ inviteId }: InviteFormProps) {
             </p>
           </div>
         </div>
-
-        {/* Decorative Divider */}
-        <div className="flex items-center justify-center gap-4">
-          <div className="h-px w-16 bg-gradient-to-r from-transparent to-amber-300" />
-          <div className="w-8 h-8 bg-[url('/mandala-pattern.png')] bg-contain opacity-50" />
-          <div className="h-px w-16 bg-gradient-to-l from-transparent to-amber-300" />
-        </div>
       </div>
 
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-4xl mx-auto space-y-8"
+        className="w-full max-w-4xl mx-auto space-y-8 md:bg-amber-200 md:p-6 md:rounded-xl"
       >
         {/* Personalized Greeting */}
         {invite?.name && (

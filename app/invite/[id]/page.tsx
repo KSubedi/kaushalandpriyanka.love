@@ -89,6 +89,14 @@ function InvitePageContent({ id }: { id: string }) {
               </div>
             </div>
 
+            <Image
+              src="/graphics/kp.webp"
+              alt="Kaushal and Priyanka Subedi"
+              width={500}
+              height={500}
+              className="w-full h-auto max-w-md mx-auto rounded-xl border-4 border-amber-200"
+            />
+
             {/* Decorative Divider */}
             <div className="relative h-px bg-gradient-to-r from-transparent via-amber-200 to-transparent my-12">
               <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 bg-white rounded-full border-2 border-amber-200 flex items-center justify-center">
