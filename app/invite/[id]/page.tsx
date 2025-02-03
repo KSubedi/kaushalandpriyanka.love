@@ -51,9 +51,9 @@ function InvitePageContent({ id }: { id: string }) {
                 transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
                 className="relative mx-auto"
               >
-                <div className="relative w-48 h-48 mx-auto mb-8 overflow-hidden">
+                <div className="relative w-60 h-48 mx-auto mb-8 overflow-hidden">
                   <Image
-                    src="/graphics/couple.svg"
+                    src="/graphics/ganesh.svg"
                     alt="Kaushal and Priyanka"
                     fill
                     className="object-cover"
