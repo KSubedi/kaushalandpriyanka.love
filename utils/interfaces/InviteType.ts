@@ -16,6 +16,7 @@ export interface Invite {
   responses?: string[];
   is_template?: boolean;
   location?: "houston" | "colorado";
+  template_name?: string;
 }
 
 export interface InviteResponse {

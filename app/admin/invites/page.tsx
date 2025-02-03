@@ -24,6 +24,7 @@ export default function InvitesPage() {
     },
     is_template: false,
     location: "houston" as "houston" | "colorado" | "",
+    template_name: "",
   });
 
   const fetchInvites = async () => {
@@ -94,6 +95,7 @@ export default function InvitesPage() {
         },
         is_template: false,
         location: "houston",
+        template_name: "",
       });
     } catch (err) {
       console.error("Error generating invite:", err);
@@ -251,6 +253,11 @@ export default function InvitesPage() {
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                           Template
                         </span>
+                        {invite.template_name && (
+                          <div className="text-sm text-gray-600">
+                            {invite.template_name}
+                          </div>
+                        )}
                         <div className="text-sm text-gray-600">
                           {invite.responses?.length || 0} responses
                         </div>
@@ -479,6 +486,31 @@ export default function InvitesPage() {
                     </div>
                   </div>
                 </div>
+
+                {formData.is_template && (
+                  <div>
+                    <label
+                      htmlFor="template_name"
+                      className="block text-sm font-medium text-gray-900 mb-2"
+                    >
+                      Template Name
+                    </label>
+                    <input
+                      type="text"
+                      name="template_name"
+                      id="template_name"
+                      value={formData.template_name}
+                      onChange={handleChange}
+                      className="block w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-900 placeholder-gray-500 focus:border-amber-500 focus:ring-2 focus:ring-amber-500 focus:ring-opacity-50 sm:text-sm"
+                      placeholder="Enter a name for this template"
+                      required={formData.is_template}
+                    />
+                    <p className="mt-2 text-sm text-gray-500">
+                      Give this template a descriptive name to help you identify
+                      it later
+                    </p>
+                  </div>
+                )}
 
                 <div className="space-y-4">
                   <label className="block text-sm font-medium text-gray-900 mb-3">
