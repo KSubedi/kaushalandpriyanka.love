@@ -107,7 +107,7 @@ function AnimatedContent({ invite, id }: { invite: Invite; id: string }) {
   );
 }
 
-export function InviteContent({
+export default function InviteContent({
   invite,
   id,
 }: {

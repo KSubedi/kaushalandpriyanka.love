@@ -3,7 +3,7 @@
 import { InviteResponse } from "@/utils/interfaces/InviteType";
 import { motion } from "framer-motion";
 import { Users } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 
 export default function AdminDashboard() {
   const [responses, setResponses] = useState<InviteResponse[]>([]);
@@ -31,58 +31,38 @@ export default function AdminDashboard() {
     fetchResponses();
   }, []);
 
-  const getEventStats = () => {
+  const stats = useMemo(() => {
     const stats = {
       haldi: 0,
       sangeet: 0,
       wedding: 0,
       reception: 0,
       total: responses.length,
-      totalGuests: 0,
+      totalGuests: responses.reduce((total, response) => {
+        return total + 1 + (Number(response.additional_guests) || 0);
+      }, 0),
     };
 
     responses.forEach((response) => {
       if (response?.events) {
-        // Count the respondent
-        stats.totalGuests++;
-
-        // Add their additional guests to the total
-        if (response.additional_guests) {
-          stats.totalGuests += response.additional_guests;
-        }
-
-        // Count event attendance (including additional guests)
+        const guestCount = 1 + (Number(response.additional_guests) || 0);
         if (response.events.haldi) {
-          stats.haldi++;
-          if (response.additional_guests) {
-            stats.haldi += response.additional_guests;
-          }
+          stats.haldi += guestCount;
         }
         if (response.events.sangeet) {
-          stats.sangeet++;
-          if (response.additional_guests) {
-            stats.sangeet += response.additional_guests;
-          }
+          stats.sangeet += guestCount;
         }
         if (response.events.wedding) {
-          stats.wedding++;
-          if (response.additional_guests) {
-            stats.wedding += response.additional_guests;
-          }
+          stats.wedding += guestCount;
         }
         if (response.events.reception) {
-          stats.reception++;
-          if (response.additional_guests) {
-            stats.reception += response.additional_guests;
-          }
+          stats.reception += guestCount;
         }
       }
     });
 
     return stats;
-  };
-
-  const stats = getEventStats();
+  }, [responses]);
 
   return (
     <div className="space-y-8">

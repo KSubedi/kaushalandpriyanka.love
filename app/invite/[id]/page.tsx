@@ -1,5 +1,5 @@
 import { getInvite } from "@/app/actions/invite";
-import { InviteContent } from "@/components/InviteContent";
+import ClientInviteWrapper from "@/components/ClientInviteWrapper";
 
 export default async function InvitePage({
   params,
@@ -8,5 +8,5 @@ export default async function InvitePage({
 }) {
   const { id } = await params;
   const invite = await getInvite(id);
-  return <InviteContent invite={invite} id={id} />;
+  return <ClientInviteWrapper invite={invite} id={id} />;
 }
