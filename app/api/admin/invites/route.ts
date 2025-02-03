@@ -20,6 +20,7 @@ interface GenerateInviteRequest {
     wedding: boolean;
     reception: boolean;
   };
+  is_template?: boolean;
 }
 
 export async function GET() {
@@ -98,6 +99,8 @@ export async function POST(request: Request) {
         ...(data.name && { name: data.name }),
         ...(data.email && { email: data.email }),
         ...(data.phone && { phone: data.phone }),
+        is_template: data.is_template || false,
+        responses: data.is_template ? [] : undefined,
       };
 
       console.log("Created invite object:", invite);
