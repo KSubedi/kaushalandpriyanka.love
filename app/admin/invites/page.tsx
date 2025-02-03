@@ -168,7 +168,7 @@ export default function InvitesPage() {
           <thead className="bg-gray-50">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                Guest Info
+                {invites[0]?.is_template ? "Template Name" : "Guest Info"}
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                 Events
@@ -177,7 +177,7 @@ export default function InvitesPage() {
                 Created
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                Type & Status
+                Status
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                 Actions
@@ -188,7 +188,11 @@ export default function InvitesPage() {
             {invites.map((invite) => (
               <tr key={invite.id} className="hover:bg-gray-50">
                 <td className="px-6 py-4">
-                  {invite.name || invite.email || invite.phone ? (
+                  {invite.is_template ? (
+                    <div className="text-sm font-medium text-gray-900">
+                      {invite.template_name || "Unnamed Template"}
+                    </div>
+                  ) : invite.name || invite.email || invite.phone ? (
                     <div className="space-y-1">
                       {invite.name && (
                         <div className="flex items-center text-sm">
@@ -253,11 +257,6 @@ export default function InvitesPage() {
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                           Template
                         </span>
-                        {invite.template_name && (
-                          <div className="text-sm text-gray-600">
-                            {invite.template_name}
-                          </div>
-                        )}
                         <div className="text-sm text-gray-600">
                           {invite.responses?.length || 0} responses
                         </div>
