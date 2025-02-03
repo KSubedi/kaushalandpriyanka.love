@@ -45,6 +45,7 @@ interface FormState {
     sangeet: boolean;
     wedding: boolean;
     reception: boolean;
+    coloradoReception: boolean;
   };
 }
 
@@ -193,6 +194,7 @@ export function InviteForm({ inviteId }: InviteFormProps) {
       sangeet: false,
       wedding: false,
       reception: false,
+      coloradoReception: false,
     },
   });
   const [isLoading, setIsLoading] = useState(false);
@@ -283,6 +285,7 @@ export function InviteForm({ inviteId }: InviteFormProps) {
             sangeet: false,
             wedding: false,
             reception: false,
+            coloradoReception: false,
           },
         });
         // Stop confetti after 8 seconds

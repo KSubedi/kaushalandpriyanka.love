@@ -14,6 +14,7 @@ interface InviteFormData {
     sangeet: boolean;
     wedding: boolean;
     reception: boolean;
+    coloradoReception: boolean;
   };
 }
 
@@ -32,6 +33,7 @@ interface GenerateInviteData {
     sangeet: boolean;
     wedding: boolean;
     reception: boolean;
+    coloradoReception: boolean;
   };
   is_template?: boolean;
 }

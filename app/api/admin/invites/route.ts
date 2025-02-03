@@ -19,6 +19,7 @@ interface GenerateInviteRequest {
     sangeet: boolean;
     wedding: boolean;
     reception: boolean;
+    coloradoReception: boolean;
   };
   is_template?: boolean;
   location?: "houston" | "colorado";
