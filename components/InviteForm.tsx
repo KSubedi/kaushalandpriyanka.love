@@ -484,6 +484,24 @@ export function InviteForm({ inviteId }: InviteFormProps) {
                 {COUPLE_INFO.noGiftsMessage}
               </p>
             </div>
+
+            {/* RSVP Deadline Notice */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6 }}
+              className="mx-auto mb-12 text-center"
+            >
+              <div className="bg-gradient-to-r from-red-50 via-amber-50 to-red-50 border-2 border-amber-200 rounded-xl p-4 shadow-lg">
+                <p className="text-lg font-semibold text-amber-900">
+                  Please RSVP by February 12th, 2024
+                </p>
+                <p className="text-sm text-amber-700 mt-1">
+                  Your timely response will help us make the necessary
+                  arrangements
+                </p>
+              </div>
+            </motion.div>
           </div>
         </div>
       </div>
@@ -582,7 +600,7 @@ export function InviteForm({ inviteId }: InviteFormProps) {
 
         <div className="space-y-6">
           <div className="text-lg font-semibold text-amber-900 text-center">
-            Events You&apos;re Invited To:
+            Select Events Will Be Attending:
           </div>
           <div className="grid grid-cols-1 gap-6">
             {Object.entries(EventInfo).map(([key, event]) => {
