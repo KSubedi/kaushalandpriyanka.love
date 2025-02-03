@@ -154,6 +154,169 @@ export default function InvitesPage() {
     }
   };
 
+  const renderInvitesTable = (invites: Invite[], title: string) => (
+    <div className="bg-white shadow rounded-lg overflow-hidden">
+      <div className="px-6 py-5 border-b border-gray-200">
+        <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
+      </div>
+      <div className="overflow-x-auto">
+        <table className="w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                Guest Info
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                Events
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                Created
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                Type & Status
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {invites.map((invite) => (
+              <tr key={invite.id} className="hover:bg-gray-50">
+                <td className="px-6 py-4">
+                  {invite.name || invite.email || invite.phone ? (
+                    <div className="space-y-1">
+                      {invite.name && (
+                        <div className="flex items-center text-sm">
+                          <span className="font-medium text-gray-900">
+                            {invite.name}
+                          </span>
+                        </div>
+                      )}
+                      {invite.email && (
+                        <div className="flex items-center text-sm">
+                          <span className="text-gray-500 w-14">Email:</span>
+                          <span className="text-gray-700 ml-2">
+                            {invite.email}
+                          </span>
+                        </div>
+                      )}
+                      {invite.phone && (
+                        <div className="flex items-center text-sm">
+                          <span className="text-gray-500 w-14">Phone:</span>
+                          <span className="text-gray-700 ml-2">
+                            {invite.phone}
+                          </span>
+                        </div>
+                      )}
+                      {typeof invite.additional_guests === "number" &&
+                        invite.additional_guests > 0 && (
+                          <div className="flex items-center text-sm">
+                            <span className="text-gray-500 w-14">Guests:</span>
+                            <span className="text-gray-700 ml-2">
+                              +{invite.additional_guests}
+                            </span>
+                          </div>
+                        )}
+                    </div>
+                  ) : (
+                    <span className="text-sm text-gray-500 italic">
+                      No pre-filled info
+                    </span>
+                  )}
+                </td>
+                <td className="px-6 py-4">
+                  <div className="flex flex-wrap gap-1">
+                    {Object.entries(invite.events)
+                      .filter(([, isIncluded]) => isIncluded)
+                      .map(([event]) => (
+                        <span
+                          key={`${invite.id}-${event}`}
+                          className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800"
+                        >
+                          {event.charAt(0).toUpperCase() + event.slice(1)}
+                        </span>
+                      ))}
+                  </div>
+                </td>
+                <td className="px-6 py-4 text-sm text-gray-700">
+                  {new Date(invite.created_at).toLocaleDateString()}
+                </td>
+                <td className="px-6 py-4">
+                  <div className="space-y-2">
+                    {invite.is_template ? (
+                      <>
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                          Template
+                        </span>
+                        <div className="text-sm text-gray-600">
+                          {invite.responses?.length || 0} responses
+                        </div>
+                      </>
+                    ) : invite.template_invite_id ? (
+                      <>
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                          Response
+                        </span>
+                        {invite.response ? (
+                          <div className="text-sm text-green-600">
+                            Submitted
+                          </div>
+                        ) : (
+                          <div className="text-sm text-gray-600">Pending</div>
+                        )}
+                      </>
+                    ) : (
+                      <>
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                          Single Use
+                        </span>
+                        {invite.response ? (
+                          <div className="text-sm text-green-600">
+                            Responded
+                          </div>
+                        ) : (
+                          <div className="text-sm text-gray-600">Pending</div>
+                        )}
+                      </>
+                    )}
+                  </div>
+                </td>
+                <td className="px-6 py-4">
+                  <div className="flex items-center space-x-2">
+                    <button
+                      onClick={() => copyInviteLink(invite.id)}
+                      className="inline-flex flex-1 justify-center items-center px-3 py-1.5 text-sm font-medium text-amber-700 bg-amber-50 rounded-lg hover:bg-amber-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-colors text-nowrap"
+                    >
+                      {copiedId === invite.id ? (
+                        <>
+                          <Check className="h-4 w-4 mr-1.5" />
+                          Copied!
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="h-4 w-4 mr-1.5" />
+                          Copy Link
+                        </>
+                      )}
+                    </button>
+                    <button
+                      onClick={() => handleDelete(invite.id)}
+                      className="inline-flex flex-1 justify-center items-center px-3 py-1.5 text-sm font-medium text-red-700 bg-red-50 rounded-lg hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
+                    >
+                      <Trash className="h-4 w-4 mr-1.5" />
+                      Delete
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+
   return (
     <div className="space-y-8">
       <div className="flex justify-between items-center">
@@ -338,187 +501,33 @@ export default function InvitesPage() {
         </div>
       )}
 
-      <div className="bg-white shadow rounded-lg overflow-hidden">
-        <div className="px-6 py-5 border-b border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900">
-            Generated Invites
-          </h3>
+      {isLoading ? (
+        <div className="p-8 text-center">
+          <div className="animate-spin w-8 h-8 border-4 border-amber-500 border-t-transparent rounded-full mx-auto" />
+          <p className="mt-4 text-gray-500">Loading invites...</p>
         </div>
-        {isLoading ? (
-          <div className="p-8 text-center">
-            <div className="animate-spin w-8 h-8 border-4 border-amber-500 border-t-transparent rounded-full mx-auto" />
-            <p className="mt-4 text-gray-500">Loading invites...</p>
-          </div>
-        ) : error ? (
-          <div className="p-8 text-center text-red-600">{error}</div>
-        ) : invites.length === 0 ? (
-          <div className="p-8 text-center text-gray-500">
-            No invites generated yet.
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                    Guest Info
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                    Events
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                    Created
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                    Type & Status
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {invites.map((invite) => (
-                  <tr key={invite.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4">
-                      {invite.name || invite.email || invite.phone ? (
-                        <div className="space-y-1">
-                          {invite.name && (
-                            <div className="flex items-center text-sm">
-                              <span className="font-medium text-gray-900">
-                                {invite.name}
-                              </span>
-                            </div>
-                          )}
-                          {invite.email && (
-                            <div className="flex items-center text-sm">
-                              <span className="text-gray-500 w-14">Email:</span>
-                              <span className="text-gray-700 ml-2">
-                                {invite.email}
-                              </span>
-                            </div>
-                          )}
-                          {invite.phone && (
-                            <div className="flex items-center text-sm">
-                              <span className="text-gray-500 w-14">Phone:</span>
-                              <span className="text-gray-700 ml-2">
-                                {invite.phone}
-                              </span>
-                            </div>
-                          )}
-                          {typeof invite.additional_guests === "number" &&
-                            invite.additional_guests > 0 && (
-                              <div className="flex items-center text-sm">
-                                <span className="text-gray-500 w-14">
-                                  Guests:
-                                </span>
-                                <span className="text-gray-700 ml-2">
-                                  +{invite.additional_guests}
-                                </span>
-                              </div>
-                            )}
-                        </div>
-                      ) : (
-                        <span className="text-sm text-gray-500 italic">
-                          No pre-filled info
-                        </span>
-                      )}
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex flex-wrap gap-1">
-                        {Object.entries(invite.events)
-                          .filter(([, isIncluded]) => isIncluded)
-                          .map(([event]) => (
-                            <span
-                              key={`${invite.id}-${event}`}
-                              className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800"
-                            >
-                              {event.charAt(0).toUpperCase() + event.slice(1)}
-                            </span>
-                          ))}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-700">
-                      {new Date(invite.created_at).toLocaleDateString()}
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="space-y-2">
-                        {invite.is_template ? (
-                          <>
-                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                              Template
-                            </span>
-                            <div className="text-sm text-gray-600">
-                              {invite.responses?.length || 0} responses
-                            </div>
-                          </>
-                        ) : invite.template_invite_id ? (
-                          <>
-                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                              Response
-                            </span>
-                            {invite.response ? (
-                              <div className="text-sm text-green-600">
-                                Submitted
-                              </div>
-                            ) : (
-                              <div className="text-sm text-gray-600">
-                                Pending
-                              </div>
-                            )}
-                          </>
-                        ) : (
-                          <>
-                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                              Single Use
-                            </span>
-                            {invite.response ? (
-                              <div className="text-sm text-green-600">
-                                Responded
-                              </div>
-                            ) : (
-                              <div className="text-sm text-gray-600">
-                                Pending
-                              </div>
-                            )}
-                          </>
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center space-x-2">
-                        <button
-                          onClick={() => copyInviteLink(invite.id)}
-                          className="inline-flex flex-1 justify-center items-center px-3 py-1.5 text-sm font-medium text-amber-700 bg-amber-50 rounded-lg hover:bg-amber-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-colors text-nowrap"
-                        >
-                          {copiedId === invite.id ? (
-                            <>
-                              <Check className="h-4 w-4 mr-1.5" />
-                              Copied!
-                            </>
-                          ) : (
-                            <>
-                              <Copy className="h-4 w-4 mr-1.5" />
-                              Copy Link
-                            </>
-                          )}
-                        </button>
-                        <button
-                          onClick={() => handleDelete(invite.id)}
-                          className="inline-flex flex-1 justify-center items-center px-3 py-1.5 text-sm font-medium text-red-700 bg-red-50 rounded-lg hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
-                        >
-                          <Trash className="h-4 w-4 mr-1.5" />
-                          Delete
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
+      ) : error ? (
+        <div className="p-8 text-center text-red-600">{error}</div>
+      ) : invites.length === 0 ? (
+        <div className="p-8 text-center text-gray-500">
+          No invites generated yet.
+        </div>
+      ) : (
+        <div className="space-y-8">
+          {/* Template Invites Section */}
+          {invites.some((invite) => invite.is_template) &&
+            renderInvitesTable(
+              invites.filter((invite) => invite.is_template),
+              "Template Invites"
+            )}
+
+          {/* Individual Invites Section */}
+          {renderInvitesTable(
+            invites.filter((invite) => !invite.is_template),
+            "Individual Invites"
+          )}
+        </div>
+      )}
     </div>
   );
 }
