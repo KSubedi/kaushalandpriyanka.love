@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Invite } from "@/utils/interfaces/InviteType";
-import { Copy, Check, Plus } from "lucide-react";
+import { Copy, Check, Plus, Trash } from "lucide-react";
 
 export default function InvitesPage() {
   const [invites, setInvites] = useState<Invite[]>([]);
@@ -121,6 +121,27 @@ export default function InvitesPage() {
         ...prev,
         [name]: value,
       }));
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (
+      !confirm(
+        "Are you sure you want to delete this invite? This action cannot be undone."
+      )
+    )
+      return;
+    try {
+      const res = await fetch(`/api/admin/invites/${id}`, { method: "DELETE" });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to delete invite");
+      }
+      setInvites((prev) => prev.filter((invite) => invite.id !== id));
+    } catch (error) {
+      setError(
+        error instanceof Error ? error.message : "Failed to delete invite"
+      );
     }
   };
 
@@ -393,22 +414,31 @@ export default function InvitesPage() {
                       )}
                     </td>
                     <td className="px-6 py-4">
-                      <button
-                        onClick={() => copyInviteLink(invite.id)}
-                        className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-amber-700 bg-amber-50 rounded-lg hover:bg-amber-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-colors"
-                      >
-                        {copiedId === invite.id ? (
-                          <>
-                            <Check className="h-4 w-4 mr-1.5" />
-                            Copied!
-                          </>
-                        ) : (
-                          <>
-                            <Copy className="h-4 w-4 mr-1.5" />
-                            Copy Link
-                          </>
-                        )}
-                      </button>
+                      <div className="flex items-center space-x-2">
+                        <button
+                          onClick={() => copyInviteLink(invite.id)}
+                          className="inline-flex flex-1 justify-center items-center px-3 py-1.5 text-sm font-medium text-amber-700 bg-amber-50 rounded-lg hover:bg-amber-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-colors text-nowrap"
+                        >
+                          {copiedId === invite.id ? (
+                            <>
+                              <Check className="h-4 w-4 mr-1.5" />
+                              Copied!
+                            </>
+                          ) : (
+                            <>
+                              <Copy className="h-4 w-4 mr-1.5" />
+                              Copy Link
+                            </>
+                          )}
+                        </button>
+                        <button
+                          onClick={() => handleDelete(invite.id)}
+                          className="inline-flex flex-1 justify-center items-center px-3 py-1.5 text-sm font-medium text-red-700 bg-red-50 rounded-lg hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
+                        >
+                          <Trash className="h-4 w-4 mr-1.5" />
+                          Delete
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}

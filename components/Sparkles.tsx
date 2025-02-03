@@ -1,64 +1,70 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
 
 interface SparkleProps {
   className?: string;
+  color?: string;
+  density?: number;
 }
 
-export function Sparkles({ className = "" }: SparkleProps) {
+export function Sparkles({
+  className = "",
+  color = "white",
+  density = 15,
+}: SparkleProps) {
   const [sparkles, setSparkles] = useState<
-    Array<{ id: number; x: number; y: number }>
+    Array<{ id: number; x: string; y: string }>
   >([]);
-  const [isMounted, setIsMounted] = useState(false);
+  const [containerRef, setContainerRef] = useState<HTMLDivElement | null>(null);
+
+  const generateSparkle = (container: HTMLDivElement) => {
+    const { width, height } = container.getBoundingClientRect();
+
+    return {
+      id: Math.random(),
+      x: `${Math.random() * width}px`,
+      y: `${Math.random() * height}px`,
+    };
+  };
 
   useEffect(() => {
-    setIsMounted(true);
+    if (!containerRef) return;
 
-    if (typeof window === "undefined") return;
-
-    const generateSparkle = () => {
-      const windowWidth = window?.innerWidth || 1000;
-      const windowHeight = window?.innerHeight || 1000;
-
-      return {
-        id: Math.random(),
-        x: Math.random() * windowWidth,
-        y: Math.random() * windowHeight,
-      };
-    };
-
-    const initialSparkles = Array.from({ length: 30 }, generateSparkle);
+    const initialSparkles = Array.from({ length: density }, () =>
+      generateSparkle(containerRef)
+    );
     setSparkles(initialSparkles);
 
     const interval = setInterval(() => {
-      setSparkles((prev) => [...prev.slice(1), generateSparkle()]);
-    }, 1000);
+      setSparkles((prev) => [...prev.slice(1), generateSparkle(containerRef)]);
+    }, 500);
 
     return () => clearInterval(interval);
-  }, []);
-
-  if (!isMounted) return null;
+  }, [containerRef, density]);
 
   return (
-    <div className={className}>
+    <div ref={setContainerRef} className={`relative ${className}`}>
       {sparkles.map((sparkle) => (
         <motion.div
           key={sparkle.id}
-          className="absolute w-1 h-1 bg-white rounded-full"
+          className="absolute w-[3px] h-[3px] rounded-full"
           style={{
             left: sparkle.x,
             top: sparkle.y,
+            background: color,
+            boxShadow: `0 0 4px ${color}, 0 0 10px ${color}`,
           }}
           initial={{ opacity: 0, scale: 0 }}
           animate={{
             opacity: [0, 1, 0],
-            scale: [0, 1, 0],
+            scale: [0, 1.5, 0],
           }}
           transition={{
-            duration: 2,
+            duration: 1.5,
             ease: "easeInOut",
+            times: [0, 0.5, 1],
           }}
         />
       ))}

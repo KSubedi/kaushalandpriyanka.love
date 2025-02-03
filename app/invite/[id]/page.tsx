@@ -7,24 +7,31 @@ import { ClientSparkles } from "@/components/ClientSparkles";
 import { Suspense } from "react";
 import { use } from "react";
 import Image from "next/image";
+import { Imperial_Script } from "next/font/google";
+
+const imperialScript = Imperial_Script({
+  weight: "400",
+  subsets: ["latin"],
+});
 
 function InvitePageContent({ id }: { id: string }) {
   return (
-    <main className="min-h-screen bg-gradient-to-br from-amber-50 to-white font-inter relative overflow-hidden py-12 px-4">
+    <main className="min-h-screen bg-white/80 backdrop-blur-sm font-inter relative overflow-hidden md:py-12 md:px-4">
       {/* Background Elements */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute inset-0 bg-[url('/mandala-pattern.png')] bg-repeat-space opacity-[0.03] mix-blend-overlay" />
+        <div className="absolute inset-0 bg-[url('/graphics/pattern.webp')] bg-repeat opacity-[0.9] mix-blend-overlay" />
         <div className="absolute inset-0 bg-gradient-to-tl from-red-100/10 via-transparent to-amber-100/10" />
       </div>
+
       <ClientSparkles className="absolute inset-0 opacity-20" />
 
       {/* Content */}
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-7xl mx-auto">
         {/* Invitation Card */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="relative bg-white shadow-xl overflow-hidden"
+          className="relative bg-white/80 backdrop-blur-sm shadow-xl overflow-hidden"
         >
           {/* Decorative Border */}
           <div className="absolute inset-0 pointer-events-none">
@@ -44,9 +51,9 @@ function InvitePageContent({ id }: { id: string }) {
                 transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
                 className="relative mx-auto"
               >
-                <div className="relative w-48 h-48 mx-auto mb-8 rounded-full overflow-hidden border-4 border-amber-200 shadow-lg">
+                <div className="relative w-48 h-48 mx-auto mb-8 overflow-hidden">
                   <Image
-                    src="/us2.jpg"
+                    src="/graphics/couple.svg"
                     alt="Kaushal and Priyanka"
                     fill
                     className="object-cover"
@@ -57,15 +64,14 @@ function InvitePageContent({ id }: { id: string }) {
                 <div className="w-20 h-20 bg-gradient-to-br from-red-400 to-amber-400 rounded-full mx-auto flex items-center justify-center">
                   <Heart className="w-10 h-10 text-white" fill="currentColor" />
                 </div>
-                <div className="absolute -inset-4 bg-[url('/mandala-pattern.png')] bg-contain opacity-5 rotate-45" />
               </motion.div>
 
-              <div className="space-y-4">
+              <div className="space-y-8">
                 <motion.h1
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.4 }}
-                  className="text-4xl md:text-5xl font-bold"
+                  className={`text-5xl md:text-6xl font-bold ${imperialScript.className}`}
                 >
                   <span className="bg-gradient-to-r from-amber-600 to-red-600 bg-clip-text text-transparent">
                     Kaushal & Priyanka
@@ -75,19 +81,11 @@ function InvitePageContent({ id }: { id: string }) {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.5 }}
-                  className="text-lg md:text-xl text-gray-600"
+                  className="text-lg max-w-xl mx-auto md:text-xl text-gray-600"
                 >
                   Request the pleasure of your company as we begin our beautiful
-                  journey together
+                  journey together.
                 </motion.p>
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.6 }}
-                  className="text-amber-800 font-medium"
-                >
-                  March 6th, 2025
-                </motion.div>
               </div>
             </div>
 
