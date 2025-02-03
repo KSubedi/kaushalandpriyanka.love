@@ -33,6 +33,7 @@ interface GenerateInviteData {
     wedding: boolean;
     reception: boolean;
   };
+  is_template?: boolean;
 }
 
 export async function getInvite(id: string): Promise<Invite | null> {
@@ -82,9 +83,9 @@ export async function submitInviteResponse({
       };
     }
 
-    // Get the invite
-    const invite = await getInvite(inviteId);
-    if (!invite) {
+    // Get the template invite
+    const templateInvite = await getInvite(inviteId);
+    if (!templateInvite) {
       return {
         success: false,
         message: "Invalid invitation ID.",
@@ -94,7 +95,7 @@ export async function submitInviteResponse({
     // Validate selected events against invite events
     const invalidEvents = Object.entries(events).filter(
       ([event, selected]) =>
-        selected && !invite.events[event as keyof typeof events]
+        selected && !templateInvite.events[event as keyof typeof events]
     );
 
     if (invalidEvents.length > 0) {
@@ -106,33 +107,55 @@ export async function submitInviteResponse({
       };
     }
 
-    // Create or update the invite response
-    const response: InviteResponse = {
-      id: invite.response?.id || crypto.randomUUID(),
+    // Generate a new unique invite ID for this response
+    const responseInviteId = crypto.randomUUID();
+
+    // Create a new invite for this response
+    const newInvite: Invite = {
+      id: responseInviteId,
       name,
       email,
       phone: phoneDigits,
-      inviteId,
+      events: templateInvite.events,
+      created_at: new Date().toISOString(),
+      template_invite_id: inviteId,
+      is_template: false,
+    };
+
+    // Create the response
+    const response: InviteResponse = {
+      id: crypto.randomUUID(),
+      name,
+      email,
+      phone: phoneDigits,
+      inviteId: responseInviteId, // Use the new invite ID
       additional_guests,
       events,
-      created_at: invite.response?.created_at || new Date().toISOString(),
+      created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     };
 
-    // Update the invite with the response
-    invite.response = response;
+    // Add the response to the new invite
+    newInvite.response = response;
 
-    // Store the updated invite
-    await CloudflareKV.put(`invite:${inviteId}`, invite);
+    // Store the new invite
+    await CloudflareKV.put(`invite:${responseInviteId}`, newInvite);
 
     // Store the response separately for querying
     await CloudflareKV.put(`response:${response.id}`, response);
 
+    // Update template invite stats
+    const updatedTemplateInvite: Invite = {
+      ...templateInvite,
+      responses: [...(templateInvite.responses || []), responseInviteId],
+      is_template: true,
+    };
+    await CloudflareKV.put(`invite:${inviteId}`, updatedTemplateInvite);
+
     return {
       success: true,
-      message: invite.response
-        ? "Your response has been updated successfully!"
-        : "Thank you for your response! We look forward to celebrating with you.",
+      message:
+        "Thank you for your response! We look forward to celebrating with you.",
       data: response,
     };
   } catch (error) {
@@ -158,6 +181,8 @@ export async function generateInviteId(
     ...(data.email && { email: data.email }),
     ...(data.phone && { phone: data.phone }),
     created_at: new Date().toISOString(),
+    is_template: data.is_template || false,
+    responses: data.is_template ? [] : undefined,
   };
 
   // Store in KV

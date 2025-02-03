@@ -12,6 +12,9 @@ export interface Invite {
   };
   created_at: string;
   response?: InviteResponse;
+  template_invite_id?: string;
+  responses?: string[];
+  is_template?: boolean;
 }
 
 export interface InviteResponse {

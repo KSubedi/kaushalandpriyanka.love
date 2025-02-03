@@ -22,6 +22,7 @@ export default function InvitesPage() {
       wedding: false,
       reception: false,
     },
+    is_template: false,
   });
 
   const fetchInvites = async () => {
@@ -90,6 +91,7 @@ export default function InvitesPage() {
           wedding: false,
           reception: false,
         },
+        is_template: false,
       });
     } catch (err) {
       console.error("Error generating invite:", err);
@@ -109,13 +111,20 @@ export default function InvitesPage() {
     const { name, value, type } = e.target;
     if (type === "checkbox") {
       const checkbox = e.target as HTMLInputElement;
-      setFormData((prev) => ({
-        ...prev,
-        events: {
-          ...prev.events,
-          [name.replace("event_", "")]: checkbox.checked,
-        },
-      }));
+      if (name === "is_template") {
+        setFormData((prev) => ({
+          ...prev,
+          is_template: checkbox.checked,
+        }));
+      } else {
+        setFormData((prev) => ({
+          ...prev,
+          events: {
+            ...prev.events,
+            [name.replace("event_", "")]: checkbox.checked,
+          },
+        }));
+      }
     } else {
       setFormData((prev) => ({
         ...prev,
@@ -252,7 +261,37 @@ export default function InvitesPage() {
                   </p>
                 </div>
 
-                <div>
+                <div className="flex items-center space-x-3">
+                  <input
+                    type="checkbox"
+                    name="is_template"
+                    id="is_template"
+                    checked={formData.is_template}
+                    onChange={handleChange}
+                    className="h-4 w-4 rounded border-gray-300 text-amber-600 focus:ring-amber-500"
+                  />
+                  <label
+                    htmlFor="is_template"
+                    className="text-sm font-medium text-gray-900"
+                  >
+                    Make this a reusable invite template
+                  </label>
+                  <div className="group relative">
+                    <button
+                      type="button"
+                      className="text-gray-400 hover:text-gray-500"
+                    >
+                      ?
+                    </button>
+                    <div className="absolute bottom-full left-1/2 mb-2 hidden w-64 -translate-x-1/2 transform rounded-lg bg-gray-900 p-2 text-xs text-white group-hover:block">
+                      When enabled, this invite can be used multiple times. Each
+                      RSVP will create a new unique invite while keeping track
+                      of all responses.
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
                   <label className="block text-sm font-medium text-gray-900 mb-3">
                     Events
                   </label>
@@ -331,7 +370,7 @@ export default function InvitesPage() {
                     Created
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                    Status
+                    Type & Status
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                     Actions
@@ -403,15 +442,48 @@ export default function InvitesPage() {
                       {new Date(invite.created_at).toLocaleDateString()}
                     </td>
                     <td className="px-6 py-4">
-                      {invite.response ? (
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                          Responded
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                          Pending
-                        </span>
-                      )}
+                      <div className="space-y-2">
+                        {invite.is_template ? (
+                          <>
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                              Template
+                            </span>
+                            <div className="text-sm text-gray-600">
+                              {invite.responses?.length || 0} responses
+                            </div>
+                          </>
+                        ) : invite.template_invite_id ? (
+                          <>
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                              Response
+                            </span>
+                            {invite.response ? (
+                              <div className="text-sm text-green-600">
+                                Submitted
+                              </div>
+                            ) : (
+                              <div className="text-sm text-gray-600">
+                                Pending
+                              </div>
+                            )}
+                          </>
+                        ) : (
+                          <>
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                              Single Use
+                            </span>
+                            {invite.response ? (
+                              <div className="text-sm text-green-600">
+                                Responded
+                              </div>
+                            ) : (
+                              <div className="text-sm text-gray-600">
+                                Pending
+                              </div>
+                            )}
+                          </>
+                        )}
+                      </div>
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center space-x-2">
