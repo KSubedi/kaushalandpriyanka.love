@@ -340,7 +340,7 @@ export function InviteForm({ inviteId }: InviteFormProps) {
               className="text-lg text-gray-700"
             >
               {invite?.response
-                ? "Thank you for updating your response. We&apos;ve noted your changes!"
+                ? "Thank you for updating your response. We've noted your changes!"
                 : "Thank you for confirming your attendance. We can&apos;t wait to celebrate our special day with you!"}
             </motion.p>
 
