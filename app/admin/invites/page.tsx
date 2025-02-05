@@ -544,6 +544,46 @@ export default function InvitesPage() {
                     })}
                   </div>
                 </div>
+
+                <div>
+                  <label
+                    htmlFor="additional_guests"
+                    className="block text-sm font-medium text-gray-900 mb-2"
+                  >
+                    Total People Allowed
+                  </label>
+                  <div className="flex flex-col space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">
+                        Selected: {formData.additional_guests + 1} people
+                      </span>
+                    </div>
+                    <input
+                      type="range"
+                      name="additional_guests"
+                      id="additional_guests"
+                      value={formData.additional_guests}
+                      onChange={(e) => {
+                        const value = parseInt(e.target.value);
+                        setFormData((prev) => ({
+                          ...prev,
+                          additional_guests: value,
+                        }));
+                      }}
+                      min="0"
+                      max="5"
+                      className="w-full h-2 bg-amber-200 rounded-lg appearance-none cursor-pointer accent-amber-500"
+                    />
+                    <div className="flex justify-between text-xs text-gray-500">
+                      <span>Just them</span>
+                      <span>Them + 5 guests</span>
+                    </div>
+                  </div>
+                  <p className="mt-2 text-sm text-gray-500">
+                    Set the maximum number of people allowed for this invite
+                    (including the invitee)
+                  </p>
+                </div>
               </div>
 
               <div className="flex justify-end space-x-3 pt-2">

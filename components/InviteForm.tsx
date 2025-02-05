@@ -250,7 +250,7 @@ export function InviteForm({ inviteId }: InviteFormProps) {
             name: inviteData.name || "",
             email: inviteData.email || "",
             phone: inviteData.phone || "",
-            additional_guests: inviteData.additional_guests || 0,
+            additional_guests: 0, // Start with 0 additional guests (1 person total)
             events: defaultEvents,
           });
         }
@@ -516,7 +516,7 @@ export function InviteForm({ inviteId }: InviteFormProps) {
             >
               <div className="bg-gradient-to-r from-red-50 via-amber-50 to-red-50 border-2 border-amber-200 rounded-xl p-4 shadow-lg">
                 <p className="text-lg font-semibold text-amber-900">
-                  Please RSVP by February 12th, 2024
+                  Please RSVP by February 12th, 2025
                 </p>
                 <p className="text-sm text-amber-700 mt-1">
                   Your timely response will help us make the necessary
@@ -603,19 +603,46 @@ export function InviteForm({ inviteId }: InviteFormProps) {
             <div className="absolute inset-y-0 top-0 left-3 flex items-center pointer-events-none">
               <UserRound className="h-5 w-5 text-gray-400" />
             </div>
-            <input
-              type="number"
-              name="additional_guests"
-              value={formData.additional_guests}
-              onChange={handleChange}
-              min="0"
-              max="5"
-              placeholder="Additional Guests (0-5)"
-              className="w-full pl-10 pr-4 py-3 rounded-xl bg-white/80 border border-amber-100 focus:border-amber-300 focus:ring focus:ring-amber-200 focus:ring-opacity-50 transition-colors disabled:opacity-50 text-gray-900 placeholder:text-gray-500"
-              disabled={isLoading}
-            />
-            <div className="mt-1 text-xs text-gray-500 ml-3">
-              Number of additional guests you&apos;d like to bring (maximum 5)
+            <div className="w-full pl-10 pr-4 py-3 rounded-xl bg-white/80 border border-amber-100 focus-within:border-amber-300 focus-within:ring focus-within:ring-amber-200 focus-within:ring-opacity-50 transition-colors">
+              <div className="flex flex-col space-y-2">
+                <div className="flex justify-between items-center">
+                  <label
+                    htmlFor="additional_guests"
+                    className="text-sm text-gray-600"
+                  >
+                    Total People Attending
+                  </label>
+                  <span className="text-amber-700 font-semibold">
+                    {formData.additional_guests + 1}
+                  </span>
+                </div>
+                <input
+                  type="range"
+                  name="additional_guests"
+                  id="additional_guests"
+                  value={formData.additional_guests}
+                  onChange={(e) => {
+                    const value = parseInt(e.target.value);
+                    setFormData((prev) => ({
+                      ...prev,
+                      additional_guests: value,
+                    }));
+                  }}
+                  min="0"
+                  max="5"
+                  step="1"
+                  className="w-full h-2 bg-amber-200 rounded-lg appearance-none cursor-pointer accent-amber-500"
+                  disabled={isLoading}
+                />
+                <div className="flex justify-between text-xs text-gray-500">
+                  <span>Just me</span>
+                  <span>Me + 5 guests</span>
+                </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  Please indicate the total number of people (including
+                  yourself) who will be attending
+                </p>
+              </div>
             </div>
           </div>
         </div>
