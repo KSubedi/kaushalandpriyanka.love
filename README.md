@@ -1,6 +1,6 @@
 # Kaushal & Priyanka's Wedding Website
 
-Welcome to the official wedding website repository for Kaushal Subedi and Priyanka Sharma, celebrating their union on March 6th, 2025.
+Welcome to the official wedding website repository for Kaushal Subedi and Priyanka Sharma, celebrating their union on March 6th, 2025 (Falgun 22, 2081).
 
 ## About the Couple
 

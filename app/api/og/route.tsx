@@ -93,7 +93,7 @@ export async function GET() {
                   fontWeight: 500,
                 }}
               >
-                March 6th, 2025
+                March 6th, 2025 (Falgun 22, 2081)
               </div>
               <div
                 style={{

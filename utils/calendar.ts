@@ -1,7 +1,8 @@
 export function generateCalendarUrl() {
   const event = {
     title: "Kaushal & Priyanka's Wedding",
-    description: "Join us as we begin our journey together as the Subedis",
+    description:
+      "Join us as we begin our journey together as the Subedis (Falgun 22, 2081)",
     location: "Houston, TX",
     startDate: "20250306T000000",
     endDate: "20250307T000000",

@@ -150,7 +150,7 @@ const COUPLE_INFO = {
   },
   date: {
     english: "March 6th, 2025",
-    vikramSamvat: "Falgun 25, 2081", // You may want to verify this conversion
+    vikramSamvat: "Falgun 22, 2081",
   },
   noGiftsMessage:
     "We're so excited to have you with us on our special day—your presence is the greatest gift we could ask for! We kindly request that no boxed gifts or flowers be brought to our celebration. Your love and support mean everything to us!",
@@ -402,7 +402,7 @@ export function InviteForm({ inviteId }: InviteFormProps) {
               className="pt-6"
             >
               <p className="text-amber-700 font-medium">
-                Save the Date: March 6th, 2025
+                Save the Date: March 6th, 2025 (Falgun 22, 2081)
               </p>
               <p className="text-gray-600 text-sm mt-2">
                 We&apos;ll send you more details via email soon.

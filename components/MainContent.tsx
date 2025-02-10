@@ -337,7 +337,7 @@ const MainContent = () => {
               className="space-y-2"
             >
               <p className="text-2xl sm:text-3xl font-light text-red-800">
-                March 6th, 2025
+                March 6th, 2025 (Falgun 22, 2081)
               </p>
               <p className="text-base sm:text-lg text-amber-700">Houston, TX</p>
             </motion.div>
