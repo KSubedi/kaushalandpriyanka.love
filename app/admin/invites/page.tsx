@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Invite } from "@/utils/interfaces/InviteType";
-import { Copy, Check, Plus, Trash } from "lucide-react";
+import { Invite, InviteResponse } from "@/utils/interfaces/InviteType";
+import { Copy, Check, Plus, Trash, Edit } from "lucide-react";
 
 export default function InvitesPage() {
   const [invites, setInvites] = useState<Invite[]>([]);
@@ -11,6 +11,10 @@ export default function InvitesPage() {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [showGenerateForm, setShowGenerateForm] = useState(false);
+  const [showEditForm, setShowEditForm] = useState(false);
+  const [editFormData, setEditFormData] = useState<InviteResponse | null>(null);
+  const [editTemplateData, setEditTemplateData] = useState<Invite | null>(null);
+  const [showEditTemplateForm, setShowEditTemplateForm] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -177,6 +181,129 @@ export default function InvitesPage() {
     }
   };
 
+  const handleEdit = (invite: Invite) => {
+    console.log("handleEdit called with:", invite);
+    if (invite.is_template) {
+      setEditTemplateData(invite);
+      setShowEditTemplateForm(true);
+    } else if (invite.response) {
+      setEditFormData(invite.response);
+      setShowEditForm(true);
+    }
+  };
+
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editFormData) return;
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await fetch(`/api/admin/responses/${editFormData.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(editFormData),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to update response");
+      }
+
+      // Refresh invites after successful update
+      fetchInvites();
+      setShowEditForm(false);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Failed to update response"
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleEditChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    const { name, value } = e.target;
+    if (!editFormData) return;
+    setEditFormData((prev) => ({ ...prev!, [name]: value }));
+  };
+
+  const handleEventChange = (event: string, checked: boolean) => {
+    if (!editFormData) return;
+    setEditFormData((prev) => ({
+      ...prev!,
+      events: {
+        ...prev!.events,
+        [event]: checked,
+      },
+    }));
+  };
+
+  const handleEditTemplateSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editTemplateData) return;
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await fetch(
+        `/api/admin/invites/${editTemplateData.id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(editTemplateData),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to update template");
+      }
+
+      // Refresh invites after successful update
+      fetchInvites();
+      setShowEditTemplateForm(false);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Failed to update template"
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleTemplateChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    const { name, value, type } = e.target;
+    if (!editTemplateData) return;
+
+    if (type === "checkbox") {
+      const checkbox = e.target as HTMLInputElement;
+      if (name === "is_template") {
+        setEditTemplateData((prev) => ({
+          ...prev!,
+          is_template: checkbox.checked,
+        }));
+      } else {
+        setEditTemplateData((prev) => ({
+          ...prev!,
+          events: {
+            ...prev!.events,
+            [name.replace("event_", "")]: checkbox.checked,
+          },
+        }));
+      }
+    } else {
+      setEditTemplateData((prev) => ({
+        ...prev!,
+        [name]: value,
+      }));
+    }
+  };
+
   const renderInvitesTable = (invites: Invite[], title: string) => (
     <div className="bg-white shadow rounded-lg overflow-hidden">
       <div className="px-6 py-5 border-b border-gray-200">
@@ -326,6 +453,13 @@ export default function InvitesPage() {
                           Copy Link
                         </>
                       )}
+                    </button>
+                    <button
+                      onClick={() => handleEdit(invite)}
+                      className="inline-flex flex-1 justify-center items-center px-3 py-1.5 text-sm font-medium text-blue-700 bg-blue-50 rounded-lg hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+                    >
+                      <Edit className="h-4 w-4 mr-1.5" />
+                      Edit
                     </button>
                     <button
                       onClick={() => handleDelete(invite.id)}
@@ -600,6 +734,248 @@ export default function InvitesPage() {
                   className="px-4 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-amber-500 to-red-500 rounded-lg hover:from-amber-600 hover:to-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 disabled:opacity-50"
                 >
                   {isGenerating ? "Generating..." : "Generate Invite"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {showEditForm && editFormData && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-semibold text-gray-900">
+                Edit Response
+              </h2>
+              <button
+                onClick={() => setShowEditForm(false)}
+                className="text-gray-500 hover:text-gray-700 transition-colors"
+              >
+                <span className="text-2xl">×</span>
+              </button>
+            </div>
+
+            <form onSubmit={handleEditSubmit} className="space-y-6">
+              <div className="space-y-5">
+                <div>
+                  <label
+                    htmlFor="name"
+                    className="block text-sm font-medium text-gray-900 mb-2"
+                  >
+                    Name
+                  </label>
+                  <input
+                    type="text"
+                    name="name"
+                    id="name"
+                    value={editFormData.name}
+                    onChange={handleEditChange}
+                    className="block w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-900 placeholder-gray-500 focus:border-amber-500 focus:ring-2 focus:ring-amber-500 focus:ring-opacity-50 sm:text-sm"
+                    placeholder="Enter guest name"
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="email"
+                    className="block text-sm font-medium text-gray-900 mb-2"
+                  >
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    name="email"
+                    id="email"
+                    value={editFormData.email}
+                    onChange={handleEditChange}
+                    className="block w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-900 placeholder-gray-500 focus:border-amber-500 focus:ring-2 focus:ring-amber-500 focus:ring-opacity-50 sm:text-sm"
+                    placeholder="Enter guest email"
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="phone"
+                    className="block text-sm font-medium text-gray-900 mb-2"
+                  >
+                    Phone
+                  </label>
+                  <input
+                    type="tel"
+                    name="phone"
+                    id="phone"
+                    value={editFormData.phone}
+                    onChange={handleEditChange}
+                    className="block w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-900 placeholder-gray-500 focus:border-amber-500 focus:ring-2 focus:ring-amber-500 focus:ring-opacity-50 sm:text-sm"
+                    placeholder="Enter guest phone"
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="additional_guests"
+                    className="block text-sm font-medium text-gray-900 mb-2"
+                  >
+                    Additional Guests
+                  </label>
+                  <input
+                    type="number"
+                    name="additional_guests"
+                    id="additional_guests"
+                    value={editFormData.additional_guests}
+                    onChange={handleEditChange}
+                    className="block w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-900 placeholder-gray-500 focus:border-amber-500 focus:ring-2 focus:ring-amber-500 focus:ring-opacity-50 sm:text-sm"
+                    placeholder="Enter number of additional guests"
+                  />
+                </div>
+
+                <div className="space-y-4">
+                  <label className="block text-sm font-medium text-gray-900 mb-3">
+                    Events
+                  </label>
+                  <div className="space-y-3 bg-gray-50 rounded-lg p-4 border border-gray-200">
+                    {Object.entries(editFormData.events).map(
+                      ([event, checked]) => (
+                        <label
+                          key={event}
+                          className="flex items-center space-x-3 cursor-pointer"
+                        >
+                          <input
+                            type="checkbox"
+                            name={`event_${event}`}
+                            checked={checked}
+                            onChange={(e) =>
+                              handleEventChange(event, e.target.checked)
+                            }
+                            className="h-4 w-4 rounded border-gray-300 text-amber-600 focus:ring-amber-500"
+                          />
+                          <span className="text-sm text-gray-900">
+                            {event.charAt(0).toUpperCase() + event.slice(1)}
+                          </span>
+                        </label>
+                      )
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-end space-x-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowEditForm(false)}
+                  className="px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-amber-500 to-red-500 rounded-lg hover:from-amber-600 hover:to-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500"
+                >
+                  Save Changes
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {showEditTemplateForm && editTemplateData && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-semibold text-gray-900">
+                Edit Template
+              </h2>
+              <button
+                onClick={() => setShowEditTemplateForm(false)}
+                className="text-gray-500 hover:text-gray-700 transition-colors"
+              >
+                <span className="text-2xl">×</span>
+              </button>
+            </div>
+
+            <form onSubmit={handleEditTemplateSubmit} className="space-y-6">
+              <div className="space-y-5">
+                <div>
+                  <label
+                    htmlFor="template_name"
+                    className="block text-sm font-medium text-gray-900 mb-2"
+                  >
+                    Template Name
+                  </label>
+                  <input
+                    type="text"
+                    name="template_name"
+                    id="template_name"
+                    value={editTemplateData.template_name || ""}
+                    onChange={handleTemplateChange}
+                    className="block w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-900 placeholder-gray-500 focus:border-amber-500 focus:ring-2 focus:ring-amber-500 focus:ring-opacity-50 sm:text-sm"
+                    placeholder="Enter template name"
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="location"
+                    className="block text-sm font-medium text-gray-900 mb-2"
+                  >
+                    Location
+                  </label>
+                  <select
+                    name="location"
+                    id="location"
+                    value={editTemplateData.location || ""}
+                    onChange={handleTemplateChange}
+                    className="block w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-900 focus:border-amber-500 focus:ring-2 focus:ring-amber-500 focus:ring-opacity-50 sm:text-sm"
+                  >
+                    <option value="">Select Location</option>
+                    <option value="houston">Houston Events</option>
+                    <option value="colorado">Colorado Reception</option>
+                  </select>
+                </div>
+
+                <div className="space-y-4">
+                  <label className="block text-sm font-medium text-gray-900 mb-3">
+                    Events
+                  </label>
+                  <div className="space-y-3 bg-gray-50 rounded-lg p-4 border border-gray-200">
+                    {Object.entries(editTemplateData.events).map(
+                      ([event, checked]) => (
+                        <label
+                          key={event}
+                          className="flex items-center space-x-3 cursor-pointer"
+                        >
+                          <input
+                            type="checkbox"
+                            name={`event_${event}`}
+                            checked={checked}
+                            onChange={handleTemplateChange}
+                            className="h-4 w-4 rounded border-gray-300 text-amber-600 focus:ring-amber-500"
+                          />
+                          <span className="text-sm text-gray-900">
+                            {event.charAt(0).toUpperCase() + event.slice(1)}
+                          </span>
+                        </label>
+                      )
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-end space-x-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowEditTemplateForm(false)}
+                  className="px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-amber-500 to-red-500 rounded-lg hover:from-amber-600 hover:to-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500"
+                >
+                  Save Changes
                 </button>
               </div>
             </form>
