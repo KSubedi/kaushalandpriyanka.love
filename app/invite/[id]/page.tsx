@@ -6,15 +6,14 @@ import { Metadata } from "next";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-// Disable caching at the edge
-export const fetchCache = "force-no-store";
-export const runtime = "edge";
-
-interface Props {
-  params: { id: string };
+interface PageProps {
+  params: Promise<{ id: string }>;
 }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
+  const { id } = await params;
   const baseUrl =
     process?.env?.NODE_ENV === "development"
       ? "http://localhost:3000"
@@ -30,7 +29,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     openGraph: {
       title,
       description,
-      url: `/invite/${params.id}`,
+      url: `/invite/${id}`,
       siteName: "Kaushal & Priyanka's Wedding",
       images: [
         {
@@ -51,8 +50,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function InvitePage({ params }: Props) {
-  const invite = await getInvite(params.id);
+export default async function InvitePage({ params }: PageProps) {
+  const { id } = await params;
+  const invite = await getInvite(id);
 
   // Add cache-busting query parameter to prevent caching
   const timestamp = Date.now();
@@ -67,7 +67,7 @@ export default async function InvitePage({ params }: Props) {
       <meta httpEquiv="Pragma" content="no-cache" />
       <meta httpEquiv="Expires" content="0" />
       <meta name="timestamp" content={timestamp.toString()} />
-      <ClientInviteWrapper invite={invite} id={params.id} />
+      <ClientInviteWrapper invite={invite} id={id} />
     </>
   );
 }
