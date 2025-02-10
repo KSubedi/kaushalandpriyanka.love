@@ -73,12 +73,12 @@ export default function AdminLayout({
         </div>
       )}
 
-      <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="w-full">
         <div className="flex gap-8">
           {!isLoginPage && (
             <>
               {/* Desktop Sidebar */}
-              <aside className="hidden lg:block w-64 flex-shrink-0">
+              <aside className="hidden lg:block w-64 flex-shrink-0 pl-8">
                 <div className="sticky top-8">
                   <SidebarContent />
                 </div>
@@ -101,8 +101,8 @@ export default function AdminLayout({
 
           <main
             className={cn(
-              "flex-1 w-full",
-              !isLoginPage && "lg:max-w-[calc(100%-16rem)]"
+              "flex-1 w-full min-h-screen py-8",
+              !isLoginPage && "lg:pr-8"
             )}
           >
             {children}
