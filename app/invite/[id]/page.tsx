@@ -57,6 +57,13 @@ export default async function InvitePage({ params }: PageProps) {
   // Add cache-busting query parameter to prevent caching
   const timestamp = Date.now();
 
+  const baseUrl =
+    process?.env?.NODE_ENV === "development"
+      ? "http://localhost:3000"
+      : "https://kaushalandpriyanka.love";
+
+  const canonicalUrl = `${baseUrl}/invite/${id}`;
+
   return (
     <>
       {/* Add cache-busting meta tags */}
@@ -67,6 +74,7 @@ export default async function InvitePage({ params }: PageProps) {
       <meta httpEquiv="Pragma" content="no-cache" />
       <meta httpEquiv="Expires" content="0" />
       <meta name="timestamp" content={timestamp.toString()} />
+      <link rel="canonical" href={canonicalUrl} />
       <ClientInviteWrapper invite={invite} id={id} />
     </>
   );
