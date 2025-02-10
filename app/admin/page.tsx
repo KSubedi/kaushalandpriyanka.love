@@ -2,13 +2,14 @@
 
 import { InviteResponse } from "@/utils/interfaces/InviteType";
 import { motion } from "framer-motion";
-import { Users } from "lucide-react";
+import { Users, Sun, Music, MapPin, PartyPopper, X } from "lucide-react";
 import { useEffect, useState, useMemo } from "react";
 
 export default function AdminDashboard() {
   const [responses, setResponses] = useState<InviteResponse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedEvent, setSelectedEvent] = useState<string | null>(null);
 
   const fetchResponses = async () => {
     setIsLoading(true);
@@ -64,6 +65,72 @@ export default function AdminDashboard() {
     return stats;
   }, [responses]);
 
+  const filteredResponses = useMemo(() => {
+    if (!selectedEvent) return responses;
+    return responses.filter(
+      (response) =>
+        response.events[selectedEvent as keyof typeof response.events]
+    );
+  }, [responses, selectedEvent]);
+
+  const eventColors = {
+    haldi: {
+      bg: "bg-amber-50",
+      border: "border-amber-100",
+      text: "text-amber-900",
+      hover: "hover:bg-amber-100",
+      selected: "bg-amber-100",
+      icon: Sun,
+      title: "Haldi",
+      gradient: "from-amber-400/10 to-amber-600/10",
+      gradientSelected: "from-amber-400/20 to-amber-600/20",
+    },
+    sangeet: {
+      bg: "bg-rose-50",
+      border: "border-rose-100",
+      text: "text-rose-900",
+      hover: "hover:bg-rose-100",
+      selected: "bg-rose-100",
+      icon: Music,
+      title: "Sangeet",
+      gradient: "from-rose-400/10 to-rose-600/10",
+      gradientSelected: "from-rose-400/20 to-rose-600/20",
+    },
+    wedding: {
+      bg: "bg-red-50",
+      border: "border-red-100",
+      text: "text-red-900",
+      hover: "hover:bg-red-100",
+      selected: "bg-red-100",
+      icon: MapPin,
+      title: "Wedding",
+      gradient: "from-red-400/10 to-red-600/10",
+      gradientSelected: "from-red-400/20 to-red-600/20",
+    },
+    reception: {
+      bg: "bg-pink-50",
+      border: "border-pink-100",
+      text: "text-pink-900",
+      hover: "hover:bg-pink-100",
+      selected: "bg-pink-100",
+      icon: PartyPopper,
+      title: "Reception",
+      gradient: "from-pink-400/10 to-pink-600/10",
+      gradientSelected: "from-pink-400/20 to-pink-600/20",
+    },
+    coloradoReception: {
+      bg: "bg-purple-50",
+      border: "border-purple-100",
+      text: "text-purple-900",
+      hover: "hover:bg-purple-100",
+      selected: "bg-purple-100",
+      icon: PartyPopper,
+      title: "Colorado Reception",
+      gradient: "from-purple-400/10 to-purple-600/10",
+      gradientSelected: "from-purple-400/20 to-purple-600/20",
+    },
+  };
+
   return (
     <div className="space-y-8">
       {/* Stats */}
@@ -88,9 +155,20 @@ export default function AdminDashboard() {
           </div>
         ) : (
           <div className="bg-white shadow rounded-xl p-4 sm:p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-6">
-              RSVP Overview
-            </h2>
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-semibold text-gray-900">
+                RSVP Overview
+              </h2>
+              {selectedEvent && (
+                <button
+                  onClick={() => setSelectedEvent(null)}
+                  className="text-sm text-gray-500 hover:text-gray-700 flex items-center gap-2"
+                >
+                  <X className="w-4 h-4" />
+                  Clear Filter
+                </button>
+              )}
+            </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {/* Summary Cards */}
               <motion.div
@@ -107,7 +185,9 @@ export default function AdminDashboard() {
                       </h3>
                     </div>
                     <p className="text-2xl sm:text-3xl font-bold text-amber-900">
-                      {responses.length}
+                      {selectedEvent
+                        ? filteredResponses.length
+                        : responses.length}
                     </p>
                   </div>
                   <div>
@@ -118,7 +198,15 @@ export default function AdminDashboard() {
                       </h3>
                     </div>
                     <p className="text-2xl sm:text-3xl font-bold text-amber-900">
-                      {stats.totalGuests}
+                      {selectedEvent
+                        ? filteredResponses.reduce(
+                            (total, response) =>
+                              total +
+                              1 +
+                              (Number(response.additional_guests) || 0),
+                            0
+                          )
+                        : stats.totalGuests}
                     </p>
                   </div>
                 </div>
@@ -131,81 +219,55 @@ export default function AdminDashboard() {
                 transition={{ delay: 0.1 }}
                 className="col-span-full lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4"
               >
-                {/* Haldi Stats */}
-                <div className="bg-amber-50 rounded-lg p-4 border border-amber-100">
-                  <div className="flex flex-col h-full">
-                    <h3 className="text-amber-900 text-sm font-medium mb-1">
-                      Haldi
-                    </h3>
-                    <div className="flex items-end justify-between mt-2">
-                      <div className="space-y-1">
-                        <p className="text-2xl font-bold text-amber-700">
-                          {stats.haldi}
-                        </p>
-                        <p className="text-xs font-medium text-amber-600">
-                          Confirmed Guests
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                {Object.entries(eventColors).map(([key, event]) => {
+                  const EventIcon = event.icon;
+                  const isSelected = selectedEvent === key;
+                  const guestCount = responses
+                    .filter((r) => r.events[key as keyof typeof r.events])
+                    .reduce(
+                      (total, r) =>
+                        total + 1 + (Number(r.additional_guests) || 0),
+                      0
+                    );
 
-                {/* Sangeet Stats */}
-                <div className="bg-rose-50 rounded-lg p-4 border border-rose-100">
-                  <div className="flex flex-col h-full">
-                    <h3 className="text-rose-900 text-sm font-medium mb-1">
-                      Sangeet
-                    </h3>
-                    <div className="flex items-end justify-between mt-2">
-                      <div className="space-y-1">
-                        <p className="text-2xl font-bold text-rose-700">
-                          {stats.sangeet}
-                        </p>
-                        <p className="text-xs font-medium text-rose-600">
-                          Confirmed Guests
-                        </p>
+                  return (
+                    <motion.button
+                      key={key}
+                      onClick={() => setSelectedEvent(isSelected ? null : key)}
+                      className={`relative overflow-hidden rounded-lg p-4 border transition-all duration-300 ${
+                        event.border
+                      } ${event.bg} ${!isSelected && event.hover}`}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <div
+                        className={`absolute inset-0 bg-gradient-to-br transition-opacity duration-300 ${
+                          isSelected ? event.gradientSelected : event.gradient
+                        }`}
+                      />
+                      <div className="relative">
+                        <div className="flex flex-col h-full">
+                          <div className="flex items-center gap-2 mb-1">
+                            <EventIcon className={`h-4 w-4 ${event.text}`} />
+                            <h3 className={`text-sm font-medium ${event.text}`}>
+                              {event.title}
+                            </h3>
+                          </div>
+                          <div className="space-y-1">
+                            <p className={`text-2xl font-bold ${event.text}`}>
+                              {guestCount}
+                            </p>
+                            <p
+                              className={`text-xs font-medium opacity-80 ${event.text}`}
+                            >
+                              Confirmed Guests
+                            </p>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Wedding Stats */}
-                <div className="bg-red-50 rounded-lg p-4 border border-red-100">
-                  <div className="flex flex-col h-full">
-                    <h3 className="text-red-900 text-sm font-medium mb-1">
-                      Wedding
-                    </h3>
-                    <div className="flex items-end justify-between mt-2">
-                      <div className="space-y-1">
-                        <p className="text-2xl font-bold text-red-700">
-                          {stats.wedding}
-                        </p>
-                        <p className="text-xs font-medium text-red-600">
-                          Confirmed Guests
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Reception Stats */}
-                <div className="bg-pink-50 rounded-lg p-4 border border-pink-100">
-                  <div className="flex flex-col h-full">
-                    <h3 className="text-pink-900 text-sm font-medium mb-1">
-                      Reception
-                    </h3>
-                    <div className="flex items-end justify-between mt-2">
-                      <div className="space-y-1">
-                        <p className="text-2xl font-bold text-pink-700">
-                          {stats.reception}
-                        </p>
-                        <p className="text-xs font-medium text-pink-600">
-                          Confirmed Guests
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                    </motion.button>
+                  );
+                })}
               </motion.div>
             </div>
           </div>
@@ -216,7 +278,11 @@ export default function AdminDashboard() {
       <div className="bg-white shadow rounded-lg overflow-hidden">
         <div className="px-4 sm:px-6 py-5 border-b border-gray-200">
           <h3 className="text-lg font-semibold text-gray-900">
-            RSVP Responses
+            {selectedEvent
+              ? `${
+                  eventColors[selectedEvent as keyof typeof eventColors].title
+                } Responses`
+              : "RSVP Responses"}
           </h3>
         </div>
         {isLoading ? (
@@ -226,8 +292,12 @@ export default function AdminDashboard() {
           </div>
         ) : error ? (
           <div className="p-8 text-center text-red-600">{error}</div>
-        ) : responses.length === 0 ? (
-          <div className="p-8 text-center text-gray-500">No responses yet.</div>
+        ) : filteredResponses.length === 0 ? (
+          <div className="p-8 text-center text-gray-500">
+            {selectedEvent
+              ? "No responses for this event yet."
+              : "No responses yet."}
+          </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
@@ -254,7 +324,7 @@ export default function AdminDashboard() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {responses.map((response) => (
+                {filteredResponses.map((response) => (
                   <tr
                     key={`response-${response.id}`}
                     className="hover:bg-gray-50"
