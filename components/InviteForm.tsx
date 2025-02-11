@@ -516,7 +516,7 @@ export function InviteForm({ inviteId }: InviteFormProps) {
             >
               <div className="bg-gradient-to-r from-red-50 via-amber-50 to-red-50 border-2 border-amber-200 rounded-xl p-4 shadow-lg">
                 <p className="text-lg font-semibold text-amber-900">
-                  Please RSVP by February 12th, 2025
+                  Please RSVP by February 18th, 2025
                 </p>
                 <p className="text-sm text-amber-700 mt-1">
                   Your timely response will help us make the necessary
