@@ -1,13 +1,6 @@
-import { CloudflareKV } from "@/lib/cloudflare/kv";
-import { Invite } from "@/utils/interfaces/InviteType";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { withAdminAuth } from "@/utils/auth-middleware";
-
-interface KVKey {
-  name: string;
-  expiration?: number;
-  metadata?: unknown;
-}
+import { createInvite, getAllInvites } from "@/lib/db/invites";
 
 interface GenerateInviteRequest {
   name?: string;
@@ -26,110 +19,58 @@ interface GenerateInviteRequest {
   template_name?: string;
 }
 
-export async function GET() {
-  return withAdminAuth(async () => {
-    try {
-      // Get all keys that start with 'invite:'
-      const keys = await CloudflareKV.list<KVKey>({ prefix: "invite:" });
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export const GET = withAdminAuth(async (_request: NextRequest) => {
+  console.log("GET /api/admin/invites - Starting to fetch invites");
+  try {
+    const invites = await getAllInvites();
+    console.log(
+      `GET /api/admin/invites - Successfully fetched ${invites.length} invites`
+    );
 
-      if (!keys?.length) {
-        console.log("No invites found");
-        return NextResponse.json({ invites: [] });
-      }
-
-      console.log(`Found ${keys.length} invites`);
-
-      // Fetch all invites in parallel
-      const invites = await Promise.all(
-        keys.map(async (key: KVKey) => {
-          try {
-            const invite = await CloudflareKV.get<Invite>(key.name);
-            return invite;
-          } catch (error) {
-            console.error(`Error fetching invite ${key.name}:`, error);
-            return null;
-          }
-        })
-      );
-
-      // Filter out any null values and sort by creation date
-      const validInvites = invites
-        .filter((invite: Invite | null): invite is Invite => invite !== null)
-        .sort(
-          (a: Invite, b: Invite) =>
-            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-        );
-
-      console.log(`Returning ${validInvites.length} valid invites`);
-      return NextResponse.json({ invites: validInvites });
-    } catch (error) {
-      console.error("Error fetching invites:", error);
-      return NextResponse.json(
-        {
-          error: "Failed to fetch invites",
-          details: error instanceof Error ? error.message : "Unknown error",
-        },
-        { status: 500 }
-      );
+    // Log the first invite for debugging
+    if (invites.length > 0) {
+      console.log("First invite sample:", JSON.stringify(invites[0], null, 2));
+    } else {
+      console.log("No invites found in the database");
     }
-  });
-}
 
-export async function POST(request: Request) {
-  return withAdminAuth(async () => {
-    try {
-      console.log("Received POST request to generate invite");
-      const data = (await request.json()) as GenerateInviteRequest;
-      console.log("Request data:", data);
+    return NextResponse.json({ success: true, invites });
+  } catch (error) {
+    console.error("Error fetching invites:", error);
+    return NextResponse.json(
+      { success: false, message: "Failed to fetch invites" },
+      { status: 500 }
+    );
+  }
+});
 
-      // Validate that at least one event is selected
-      const hasEvent = Object.values(data.events).some(
-        (isSelected) => isSelected
-      );
-      if (!hasEvent) {
-        console.log("No events selected");
-        return NextResponse.json(
-          { error: "At least one event must be selected" },
-          { status: 400 }
-        );
-      }
+export const POST = withAdminAuth(async (request: NextRequest) => {
+  try {
+    const data: GenerateInviteRequest = await request.json();
 
-      // Create the invite
-      const invite: Invite = {
-        id: crypto.randomUUID(),
-        events: data.events,
-        created_at: new Date().toISOString(),
-        ...(data.name && { name: data.name }),
-        ...(data.email && { email: data.email }),
-        ...(data.phone && { phone: data.phone }),
-        is_template: data.is_template || false,
-        responses: data.is_template ? [] : undefined,
-        location: data.location,
-        ...(data.is_template &&
-          data.template_name && { template_name: data.template_name }),
-      };
+    // Create the invite
+    const invite = await createInvite({
+      name: data.name || "",
+      email: data.email || "",
+      phone: data.phone || "",
+      additional_guests: data.additional_guests || 0,
+      events: data.events,
+      is_template: data.is_template || false,
+      location: data.location,
+      template_name: data.template_name || "",
+    });
 
-      console.log("Created invite object:", invite);
-
-      // Store in KV
-      try {
-        await CloudflareKV.put(`invite:${invite.id}`, invite);
-        console.log("Successfully stored invite in KV");
-      } catch (kvError) {
-        console.error("Error storing invite in KV:", kvError);
-        throw new Error("Failed to store invite in database");
-      }
-
-      return NextResponse.json({ invite });
-    } catch (error) {
-      console.error("Error generating invite:", error);
-      return NextResponse.json(
-        {
-          error: "Failed to generate invite",
-          details: error instanceof Error ? error.message : "Unknown error",
-        },
-        { status: 500 }
-      );
-    }
-  });
-}
+    return NextResponse.json({
+      success: true,
+      message: "Invite generated successfully",
+      invite,
+    });
+  } catch (error) {
+    console.error("Error generating invite:", error);
+    return NextResponse.json(
+      { success: false, message: "Failed to generate invite" },
+      { status: 500 }
+    );
+  }
+});

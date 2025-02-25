@@ -1,7 +1,8 @@
 "use server";
 
-import { CloudflareKV } from "@/lib/cloudflare/kv";
+import { prisma } from "@/lib/prisma";
 import { Invite, InviteResponse } from "@/utils/interfaces/InviteType";
+import { Prisma } from "@prisma/client";
 
 interface InviteFormData {
   name: string;
@@ -38,8 +39,66 @@ interface GenerateInviteData {
   is_template?: boolean;
 }
 
+type EventsObject = {
+  haldi: boolean;
+  sangeet: boolean;
+  wedding: boolean;
+  reception: boolean;
+  coloradoReception: boolean;
+};
+
 export async function getInvite(id: string): Promise<Invite | null> {
-  return CloudflareKV.get<Invite>(`invite:${id}`);
+  try {
+    console.log(`Attempting to fetch invite with ID: ${id}`);
+
+    if (!id) {
+      console.error("Invalid invite ID: ID is empty or undefined");
+      return null;
+    }
+
+    const invite = await prisma.invite.findUnique({
+      where: { id },
+      include: { response: true },
+    });
+
+    if (!invite) {
+      console.error(`Invite not found with ID: ${id}`);
+      return null;
+    }
+
+    console.log(`Successfully found invite: ${invite.id}`);
+
+    // Convert Prisma model to Invite interface
+    return {
+      id: invite.id,
+      name: invite.name || undefined,
+      email: invite.email || undefined,
+      phone: invite.phone || undefined,
+      events: invite.events as EventsObject,
+      created_at: invite.created_at.toISOString(),
+      is_template: invite.is_template,
+      template_name: invite.template_name || undefined,
+      location:
+        (invite.location as "houston" | "colorado" | undefined) || undefined,
+      template_invite_id: invite.template_invite_id || undefined,
+      response: invite.response
+        ? {
+            id: invite.response.id,
+            name: invite.response.name,
+            email: invite.response.email,
+            phone: invite.response.phone,
+            inviteId: invite.response.invite_id,
+            additional_guests: invite.response.additional_guests,
+            events: invite.response.events as EventsObject,
+            created_at: invite.response.created_at.toISOString(),
+            updated_at: invite.response.updated_at.toISOString(),
+          }
+        : undefined,
+    };
+  } catch (error) {
+    console.error("Error fetching invite:", error);
+    return null;
+  }
 }
 
 export async function submitInviteResponse({
@@ -85,9 +144,13 @@ export async function submitInviteResponse({
       };
     }
 
-    // Get the template invite
-    const templateInvite = await getInvite(inviteId);
-    if (!templateInvite) {
+    // Get the invite
+    const invite = await prisma.invite.findUnique({
+      where: { id: inviteId },
+      include: { response: true },
+    });
+
+    if (!invite) {
       return {
         success: false,
         message: "Invalid invitation ID.",
@@ -95,9 +158,10 @@ export async function submitInviteResponse({
     }
 
     // Validate selected events against invite events
+    const inviteEvents = invite.events as EventsObject;
     const invalidEvents = Object.entries(events).filter(
       ([event, selected]) =>
-        selected && !templateInvite.events[event as keyof typeof events]
+        selected && !inviteEvents[event as keyof typeof events]
     );
 
     if (invalidEvents.length > 0) {
@@ -109,57 +173,119 @@ export async function submitInviteResponse({
       };
     }
 
-    // Generate a new unique invite ID for this response
-    const responseInviteId = crypto.randomUUID();
+    // Check if this is a template invite or a regular invite
+    if (invite.is_template) {
+      // For template invites, create a new invite and response
+      // Generate a new unique invite ID for this response
+      const responseInviteId = crypto.randomUUID();
 
-    // Create a new invite for this response
-    const newInvite: Invite = {
-      id: responseInviteId,
-      name,
-      email,
-      phone: phoneDigits,
-      events: templateInvite.events,
-      created_at: new Date().toISOString(),
-      template_invite_id: inviteId,
-      is_template: false,
-    };
+      // Create a new invite and response in a transaction
+      const result = await prisma.$transaction(async (tx) => {
+        // Create a new invite for this response
+        const newInvite = await tx.invite.create({
+          data: {
+            id: responseInviteId,
+            name,
+            email,
+            phone: phoneDigits,
+            events: invite.events as Prisma.InputJsonValue,
+            is_template: false,
+            template_invite_id: inviteId,
+          },
+        });
 
-    // Create the response
-    const response: InviteResponse = {
-      id: crypto.randomUUID(),
-      name,
-      email,
-      phone: phoneDigits,
-      inviteId: responseInviteId, // Use the new invite ID
-      additional_guests,
-      events,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    };
+        // Create the response linked to the new invite
+        const response = await tx.response.create({
+          data: {
+            id: crypto.randomUUID(),
+            name,
+            email,
+            phone: phoneDigits,
+            invite_id: responseInviteId,
+            additional_guests,
+            events: events as Prisma.InputJsonValue,
+          },
+        });
 
-    // Add the response to the new invite
-    newInvite.response = response;
+        return { newInvite, response };
+      });
 
-    // Store the new invite
-    await CloudflareKV.put(`invite:${responseInviteId}`, newInvite);
+      return {
+        success: true,
+        message:
+          "Thank you for your response! We look forward to celebrating with you.",
+        data: {
+          id: result.response.id,
+          name: result.response.name,
+          email: result.response.email,
+          phone: result.response.phone,
+          inviteId: result.response.invite_id,
+          additional_guests: result.response.additional_guests,
+          events: result.response.events as EventsObject,
+          created_at: result.response.created_at.toISOString(),
+          updated_at: result.response.updated_at.toISOString(),
+        },
+      };
+    } else {
+      // For regular invites, update the invite and create/update the response
+      let response;
 
-    // Store the response separately for querying
-    await CloudflareKV.put(`response:${response.id}`, response);
+      if (invite.response) {
+        // Update existing response
+        response = await prisma.response.update({
+          where: { id: invite.response.id },
+          data: {
+            name,
+            email,
+            phone: phoneDigits,
+            additional_guests,
+            events: events as Prisma.InputJsonValue,
+            updated_at: new Date(),
+          },
+        });
+      } else {
+        // Create new response for this invite
+        response = await prisma.response.create({
+          data: {
+            id: crypto.randomUUID(),
+            name,
+            email,
+            phone: phoneDigits,
+            invite_id: inviteId,
+            additional_guests,
+            events: events as Prisma.InputJsonValue,
+          },
+        });
+      }
 
-    // Update template invite stats
-    const updatedTemplateInvite: Invite = {
-      ...templateInvite,
-      responses: [...(templateInvite.responses || []), responseInviteId],
-      is_template: true,
-    };
-    await CloudflareKV.put(`invite:${inviteId}`, updatedTemplateInvite);
+      // Update the invite with the user's info
+      await prisma.invite.update({
+        where: { id: inviteId },
+        data: {
+          name,
+          email,
+          phone: phoneDigits,
+          updated_at: new Date(),
+        },
+      });
 
-    return {
-      success: true,
-      message:
-        "Thank you for your response! We look forward to celebrating with you.",
-      data: response,
-    };
+      return {
+        success: true,
+        message:
+          "Thank you for your response! We look forward to celebrating with you.",
+        data: {
+          id: response.id,
+          name: response.name,
+          email: response.email,
+          phone: response.phone,
+          inviteId: response.invite_id,
+          additional_guests: response.additional_guests,
+          events: response.events as EventsObject,
+          created_at: response.created_at.toISOString(),
+          updated_at: response.updated_at.toISOString(),
+        },
+      };
+    }
   } catch (error) {
     console.error("Error processing invite response:", error);
     return {
@@ -172,23 +298,21 @@ export async function submitInviteResponse({
 export async function generateInviteId(
   data: GenerateInviteData
 ): Promise<string> {
-  // Generate a unique ID
-  const inviteId = crypto.randomUUID();
+  try {
+    // Create the invite using Prisma
+    const invite = await prisma.invite.create({
+      data: {
+        events: data.events as Prisma.InputJsonValue,
+        name: data.name || null,
+        email: data.email || null,
+        phone: data.phone || null,
+        is_template: data.is_template || false,
+      },
+    });
 
-  // Create the invite
-  const invite: Invite = {
-    id: inviteId,
-    events: data.events,
-    ...(data.name && { name: data.name }),
-    ...(data.email && { email: data.email }),
-    ...(data.phone && { phone: data.phone }),
-    created_at: new Date().toISOString(),
-    is_template: data.is_template || false,
-    responses: data.is_template ? [] : undefined,
-  };
-
-  // Store in KV
-  await CloudflareKV.put(`invite:${inviteId}`, invite);
-
-  return inviteId;
+    return invite.id;
+  } catch (error) {
+    console.error("Error generating invite:", error);
+    throw new Error("Failed to generate invite");
+  }
 }

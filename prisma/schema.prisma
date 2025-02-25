@@ -1,0 +1,39 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Invite {
+  id                    String    @id @default(uuid())
+  name                  String?
+  email                 String?
+  phone                 String?
+  additional_guests     Int       @default(0)
+  events                Json
+  created_at            DateTime  @default(now())
+  updated_at            DateTime  @updatedAt
+  is_template           Boolean   @default(false)
+  template_name         String?
+  location              String?
+  template_invite_id    String?
+  template_invite       Invite?   @relation("TemplateInvites", fields: [template_invite_id], references: [id])
+  invites_from_template Invite[]  @relation("TemplateInvites")
+  response              Response?
+}
+
+model Response {
+  id                String   @id @default(uuid())
+  name              String
+  email             String
+  phone             String
+  additional_guests Int      @default(0)
+  events            Json
+  created_at        DateTime @default(now())
+  updated_at        DateTime @updatedAt
+  invite_id         String   @unique
+  invite            Invite   @relation(fields: [invite_id], references: [id], onDelete: Cascade)
+}

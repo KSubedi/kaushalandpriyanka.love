@@ -1,32 +1,41 @@
 "use server";
 
-import { CloudflareKV } from "@/lib/cloudflare/kv";
-import { Invite } from "@/utils/interfaces/InviteType";
 import { NextResponse, NextRequest } from "next/server";
 import { withAdminAuth } from "@/utils/auth-middleware";
+import { getInviteById, updateInvite, deleteInvite } from "@/lib/db/invites";
 
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  return withAdminAuth(async () => {
+type InviteParams = {
+  id: string;
+};
+
+export const DELETE = withAdminAuth(
+  async (request: NextRequest, { params }: { params: InviteParams }) => {
     try {
-      const { id } = await params;
-      const key = `invite:${id}`;
+      const { id } = params;
 
-      const existingInvite = await CloudflareKV.get(key);
-      if (existingInvite === null) {
+      // Check if invite exists
+      const existingInvite = await getInviteById(id);
+      if (!existingInvite) {
         return NextResponse.json(
-          { error: "Invite not found" },
+          { success: false, message: "Invite not found" },
           { status: 404 }
         );
       }
 
-      await CloudflareKV.delete(key);
+      // Delete the invite
+      const success = await deleteInvite(id);
+
+      if (!success) {
+        return NextResponse.json(
+          { success: false, message: "Failed to delete invite" },
+          { status: 500 }
+        );
+      }
 
       return NextResponse.json(
         {
-          ok: true,
+          success: true,
+          message: "Invite deleted successfully",
         },
         { status: 200 }
       );
@@ -34,52 +43,71 @@ export async function DELETE(
       console.error("Error deleting invite:", error);
 
       return NextResponse.json(
-        { error: "Failed to delete invite" },
+        { success: false, message: "Failed to delete invite" },
         { status: 500 }
       );
     }
-  });
-}
+  }
+);
 
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  return withAdminAuth(async () => {
+export const PUT = withAdminAuth(
+  async (request: NextRequest, { params }: { params: InviteParams }) => {
     try {
-      const { id } = await params;
-      const key = `invite:${id}`;
+      const { id } = params;
       const data = await request.json();
 
-      // Get the existing invite
-      const existingInvite = await CloudflareKV.get<Invite>(key);
-      if (existingInvite === null) {
+      // Check if invite exists
+      const existingInvite = await getInviteById(id);
+      if (!existingInvite) {
         return NextResponse.json(
-          { error: "Invite not found" },
+          { success: false, message: "Invite not found" },
           { status: 404 }
         );
       }
 
-      // Update the invite with new data
-      const updatedInvite: Invite = {
-        ...existingInvite,
+      // Process events based on location
+      let updatedEvents = { ...existingInvite.events };
+
+      if (data.events) {
+        updatedEvents = { ...updatedEvents, ...data.events };
+      }
+
+      // If location is changing, update events accordingly
+      if (data.location && data.location !== existingInvite.location) {
+        if (data.location === "houston") {
+          // For Houston location, disable Colorado Reception
+          updatedEvents.coloradoReception = false;
+        } else if (data.location === "colorado") {
+          // For Colorado location, disable Houston events and enable Colorado Reception
+          updatedEvents.haldi = false;
+          updatedEvents.sangeet = false;
+          updatedEvents.wedding = false;
+          updatedEvents.reception = false;
+          updatedEvents.coloradoReception = true;
+        }
+      }
+
+      // Update the invite
+      const updatedInvite = await updateInvite(id, {
         ...data,
-        events: {
-          ...existingInvite.events,
-          ...data.events,
-        },
-      };
+        events: updatedEvents,
+      });
 
-      // Store the updated invite
-      await CloudflareKV.put(key, updatedInvite);
-
-      return NextResponse.json({ invite: updatedInvite });
+      return NextResponse.json({
+        success: true,
+        message: "Invite updated successfully",
+        invite: updatedInvite,
+      });
     } catch (error) {
       console.error("Error updating invite:", error);
       return NextResponse.json(
-        { error: "Failed to update invite" },
+        {
+          success: false,
+          message:
+            error instanceof Error ? error.message : "Failed to update invite",
+        },
         { status: 500 }
       );
     }
-  });
-}
+  }
+);
