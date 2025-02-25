@@ -1,14 +1,14 @@
 "use client";
 
 import { Invite, InviteResponse } from "@/utils/interfaces/InviteType";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { AdminTabs } from "@/components/admin/AdminTabs";
 import { StatsOverview } from "@/components/admin/StatsOverview";
 import { ResponsesTable } from "@/components/admin/ResponsesTable";
 import { InvitesTable } from "@/components/admin/InvitesTable";
 import { InviteForm } from "@/components/admin/InviteForm";
 import { EditInviteForm } from "@/components/admin/EditInviteForm";
-import { useSearchParams, useRouter } from "next/navigation";
 import { MigrationButton } from "@/components/admin/MigrationButton";
 import { EditResponseForm } from "@/components/admin/EditResponseForm";
 
@@ -29,7 +29,20 @@ interface InviteFormData {
   template_name: string;
 }
 
-export default function AdminDashboard() {
+export default function AdminPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="p-8 text-center">Loading admin dashboard...</div>
+      }
+    >
+      <AdminDashboard />
+    </Suspense>
+  );
+}
+
+// Inner component that uses client-side hooks
+function AdminDashboard() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
