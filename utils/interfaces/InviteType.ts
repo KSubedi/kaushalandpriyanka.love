@@ -36,4 +36,5 @@ export interface InviteResponse {
   };
   created_at: string;
   updated_at: string;
+  welcome_email_sent?: boolean;
 }

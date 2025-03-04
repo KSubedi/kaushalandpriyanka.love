@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { Invite, InviteResponse } from "@/utils/interfaces/InviteType";
 import { Prisma } from "@prisma/client";
+import { sendRsvpConfirmationEmail } from "@/lib/email";
 
 interface InviteFormData {
   name: string;
@@ -173,6 +174,8 @@ export async function submitInviteResponse({
       };
     }
 
+    let responseData: InviteResponse;
+
     // Check if this is a template invite or a regular invite
     if (invite.is_template) {
       // For template invites, create a new invite and response
@@ -210,21 +213,16 @@ export async function submitInviteResponse({
         return { newInvite, response };
       });
 
-      return {
-        success: true,
-        message:
-          "Thank you for your response! We look forward to celebrating with you.",
-        data: {
-          id: result.response.id,
-          name: result.response.name,
-          email: result.response.email,
-          phone: result.response.phone,
-          inviteId: result.response.invite_id,
-          additional_guests: result.response.additional_guests,
-          events: result.response.events as EventsObject,
-          created_at: result.response.created_at.toISOString(),
-          updated_at: result.response.updated_at.toISOString(),
-        },
+      responseData = {
+        id: result.response.id,
+        name: result.response.name,
+        email: result.response.email,
+        phone: result.response.phone,
+        inviteId: result.response.invite_id,
+        additional_guests: result.response.additional_guests,
+        events: result.response.events as EventsObject,
+        created_at: result.response.created_at.toISOString(),
+        updated_at: result.response.updated_at.toISOString(),
       };
     } else {
       // For regular invites, update the invite and create/update the response
@@ -269,23 +267,34 @@ export async function submitInviteResponse({
         },
       });
 
-      return {
-        success: true,
-        message:
-          "Thank you for your response! We look forward to celebrating with you.",
-        data: {
-          id: response.id,
-          name: response.name,
-          email: response.email,
-          phone: response.phone,
-          inviteId: response.invite_id,
-          additional_guests: response.additional_guests,
-          events: response.events as EventsObject,
-          created_at: response.created_at.toISOString(),
-          updated_at: response.updated_at.toISOString(),
-        },
+      responseData = {
+        id: response.id,
+        name: response.name,
+        email: response.email,
+        phone: response.phone,
+        inviteId: response.invite_id,
+        additional_guests: response.additional_guests,
+        events: response.events as EventsObject,
+        created_at: response.created_at.toISOString(),
+        updated_at: response.updated_at.toISOString(),
       };
     }
+
+    // Send confirmation email
+    try {
+      await sendRsvpConfirmationEmail({ response: responseData });
+      console.log(`Confirmation email sent to ${email}`);
+    } catch (emailError) {
+      // Log the error but don't fail the response submission
+      console.error("Error sending confirmation email:", emailError);
+    }
+
+    return {
+      success: true,
+      message:
+        "Thank you for your response! We look forward to celebrating with you. A confirmation email has been sent to your email address.",
+      data: responseData,
+    };
   } catch (error) {
     console.error("Error processing invite response:", error);
     return {

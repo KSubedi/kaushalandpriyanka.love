@@ -26,14 +26,15 @@ model Invite {
 }
 
 model Response {
-  id                String   @id @default(uuid())
-  name              String
-  email             String
-  phone             String
-  additional_guests Int      @default(0)
-  events            Json
-  created_at        DateTime @default(now())
-  updated_at        DateTime @updatedAt
-  invite_id         String   @unique
-  invite            Invite   @relation(fields: [invite_id], references: [id], onDelete: Cascade)
+  id                 String   @id @default(uuid())
+  name               String
+  email              String
+  phone              String
+  additional_guests  Int      @default(0)
+  events             Json
+  created_at         DateTime @default(now())
+  updated_at         DateTime @updatedAt
+  invite_id          String   @unique
+  invite             Invite   @relation(fields: [invite_id], references: [id], onDelete: Cascade)
+  welcome_email_sent Boolean  @default(false)
 }

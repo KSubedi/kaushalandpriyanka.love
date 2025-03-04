@@ -11,6 +11,7 @@ import { InviteForm } from "@/components/admin/InviteForm";
 import { EditInviteForm } from "@/components/admin/EditInviteForm";
 import { MigrationButton } from "@/components/admin/MigrationButton";
 import { EditResponseForm } from "@/components/admin/EditResponseForm";
+import { BulkEmailButton } from "@/components/admin/BulkEmailButton";
 
 interface InviteFormData {
   name: string;
@@ -385,6 +386,12 @@ function AdminDashboard() {
               ))}
             </div>
           </div>
+
+          <BulkEmailButton
+            responses={filteredResponses}
+            onComplete={fetchResponses}
+          />
+
           <ResponsesTable
             responses={filteredResponses}
             onEditResponse={handleEditResponse}
