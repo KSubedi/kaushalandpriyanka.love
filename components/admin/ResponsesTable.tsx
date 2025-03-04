@@ -54,27 +54,14 @@ export function ResponsesTable({
       if (response.ok) {
         toast.success("Confirmation email sent successfully");
 
-        const responseObj = localResponses.find((r) => r.id === responseId);
-        if (responseObj) {
-          await fetch(`/api/admin/responses/${responseId}`, {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              ...responseObj,
-              welcome_email_sent: true,
-            }),
-          });
-
-          setLocalResponses((prevResponses: InviteResponse[]) =>
-            prevResponses.map((resp: InviteResponse) =>
-              resp.id === responseId
-                ? { ...resp, welcome_email_sent: true }
-                : resp
-            )
-          );
-        }
+        // Update local state to reflect the change
+        setLocalResponses((prevResponses: InviteResponse[]) =>
+          prevResponses.map((resp: InviteResponse) =>
+            resp.id === responseId
+              ? { ...resp, welcome_email_sent: true }
+              : resp
+          )
+        );
       } else {
         toast.error(`Failed to send email: ${data.error || "Unknown error"}`);
       }
@@ -213,13 +200,22 @@ export function ResponsesTable({
 
                     <button
                       onClick={() => handleSendConfirmationEmail(response.id)}
-                      disabled={sendingEmail === response.id}
+                      disabled={
+                        sendingEmail === response.id ||
+                        response.welcome_email_sent
+                      }
                       className={`flex items-center justify-center px-2 py-1 text-xs font-medium text-white ${
                         sendingEmail === response.id
                           ? "bg-purple-300 cursor-not-allowed"
+                          : response.welcome_email_sent
+                          ? "bg-gray-300 cursor-not-allowed"
                           : "bg-purple-500 hover:bg-purple-600"
                       } rounded transition-colors shadow-sm`}
-                      title="Send confirmation email"
+                      title={
+                        response.welcome_email_sent
+                          ? "Email already sent"
+                          : "Send confirmation email"
+                      }
                     >
                       <Mail className="h-3 w-3 mr-1" />
                       {sendingEmail === response.id ? "Sending..." : "Email"}

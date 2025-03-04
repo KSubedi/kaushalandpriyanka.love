@@ -32,6 +32,14 @@ export const POST = withAdminAuth(async (request: NextRequest) => {
       );
     }
 
+    // Check if welcome email has already been sent
+    if (response.welcome_email_sent) {
+      return NextResponse.json(
+        { error: "Confirmation email has already been sent to this recipient" },
+        { status: 400 }
+      );
+    }
+
     // Format the response for the email function
     const formattedResponse: InviteResponse = {
       id: response.id,
@@ -53,11 +61,18 @@ export const POST = withAdminAuth(async (request: NextRequest) => {
       },
       created_at: response.created_at.toISOString(),
       updated_at: response.updated_at.toISOString(),
+      welcome_email_sent: response.welcome_email_sent,
     };
 
     // Send the confirmation email
     await sendRsvpConfirmationEmail({
       response: formattedResponse,
+    });
+
+    // Update the response to mark welcome email as sent
+    await prisma.response.update({
+      where: { id: responseId },
+      data: { welcome_email_sent: true },
     });
 
     return NextResponse.json({

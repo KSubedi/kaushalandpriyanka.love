@@ -81,19 +81,6 @@ export function BulkEmailButton({
               failedCount++;
               return false;
             }
-
-            // Update the welcome_email_sent status
-            await fetch(`/api/admin/responses/${response.id}`, {
-              method: "PUT",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                ...response,
-                welcome_email_sent: true,
-              }),
-            });
-
             return true;
           } catch (error) {
             console.error(
