@@ -2,15 +2,7 @@
 
 import { InviteResponse } from "@/utils/interfaces/InviteType";
 import { format } from "date-fns";
-import {
-  Edit,
-  Trash,
-  Copy,
-  Check,
-  ExternalLink,
-  Mail,
-  Send,
-} from "lucide-react";
+import { Edit, Trash, Copy, Check, ExternalLink, Mail } from "lucide-react";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 
@@ -27,9 +19,6 @@ export function ResponsesTable({
 }: ResponsesTableProps) {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [sendingEmail, setSendingEmail] = useState<string | null>(null);
-  const [sendingWelcomeEmail, setSendingWelcomeEmail] = useState<string | null>(
-    null
-  );
   const [localResponses, setLocalResponses] =
     useState<InviteResponse[]>(responses);
 
@@ -64,6 +53,28 @@ export function ResponsesTable({
 
       if (response.ok) {
         toast.success("Confirmation email sent successfully");
+
+        const responseObj = localResponses.find((r) => r.id === responseId);
+        if (responseObj) {
+          await fetch(`/api/admin/responses/${responseId}`, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              ...responseObj,
+              welcome_email_sent: true,
+            }),
+          });
+
+          setLocalResponses((prevResponses: InviteResponse[]) =>
+            prevResponses.map((resp: InviteResponse) =>
+              resp.id === responseId
+                ? { ...resp, welcome_email_sent: true }
+                : resp
+            )
+          );
+        }
       } else {
         toast.error(`Failed to send email: ${data.error || "Unknown error"}`);
       }
@@ -72,41 +83,6 @@ export function ResponsesTable({
       toast.error("Failed to send confirmation email");
     } finally {
       setSendingEmail(null);
-    }
-  };
-
-  const handleSendWelcomeEmail = async (responseId: string) => {
-    try {
-      setSendingWelcomeEmail(responseId);
-      const response = await fetch("/api/admin/responses/send-welcome", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ responseId }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        toast.success("Welcome email sent successfully");
-        setLocalResponses((prevResponses: InviteResponse[]) =>
-          prevResponses.map((resp: InviteResponse) =>
-            resp.id === responseId
-              ? { ...resp, welcome_email_sent: true }
-              : resp
-          )
-        );
-      } else {
-        toast.error(
-          `Failed to send welcome email: ${data.error || "Unknown error"}`
-        );
-      }
-    } catch (error) {
-      console.error("Error sending welcome email:", error);
-      toast.error("Failed to send welcome email");
-    } finally {
-      setSendingWelcomeEmail(null);
     }
   };
 
@@ -143,7 +119,7 @@ export function ResponsesTable({
                 Response Date
               </th>
               <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-blue-700 uppercase tracking-wider">
-                Welcome Email
+                Email Sent
               </th>
               <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-blue-700 uppercase tracking-wider">
                 Actions
@@ -247,31 +223,6 @@ export function ResponsesTable({
                     >
                       <Mail className="h-3 w-3 mr-1" />
                       {sendingEmail === response.id ? "Sending..." : "Email"}
-                    </button>
-
-                    <button
-                      onClick={() => handleSendWelcomeEmail(response.id)}
-                      disabled={
-                        sendingWelcomeEmail === response.id ||
-                        response.welcome_email_sent
-                      }
-                      className={`flex items-center justify-center px-2 py-1 text-xs font-medium text-white ${
-                        sendingWelcomeEmail === response.id
-                          ? "bg-green-300 cursor-not-allowed"
-                          : response.welcome_email_sent
-                          ? "bg-gray-300 cursor-not-allowed"
-                          : "bg-green-500 hover:bg-green-600"
-                      } rounded transition-colors shadow-sm`}
-                      title={
-                        response.welcome_email_sent
-                          ? "Welcome email already sent"
-                          : "Send welcome email"
-                      }
-                    >
-                      <Send className="h-3 w-3 mr-1" />
-                      {sendingWelcomeEmail === response.id
-                        ? "Sending..."
-                        : "Welcome"}
                     </button>
 
                     <div className="flex gap-1">

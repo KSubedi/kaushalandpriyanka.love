@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Send, Loader2 } from "lucide-react";
+import { Mail, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { InviteResponse } from "@/utils/interfaces/InviteType";
 
@@ -22,12 +22,12 @@ export function BulkEmailButton({
     );
 
     if (pendingResponses.length === 0) {
-      toast.info("No pending emails to send");
+      toast.info("No pending confirmation emails to send");
       return;
     }
 
     const confirmSend = window.confirm(
-      `Are you sure you want to send welcome emails to ${pendingResponses.length} recipients? This will be throttled at 2 emails per second.`
+      `Are you sure you want to send confirmation emails to ${pendingResponses.length} recipients? This will be throttled at 2 emails per second.`
     );
 
     if (!confirmSend) return;
@@ -47,7 +47,7 @@ export function BulkEmailButton({
           toast.success(
             `Completed sending ${
               pendingResponses.length - failedCount
-            } welcome emails${
+            } confirmation emails${
               failedCount > 0 ? ` (${failedCount} failed)` : ""
             }`
           );
@@ -61,26 +61,43 @@ export function BulkEmailButton({
 
         const batchPromises = batch.map(async (response) => {
           try {
-            const result = await fetch("/api/admin/responses/send-welcome", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({ responseId: response.id }),
-            });
+            // Use the existing confirmation email endpoint
+            const result = await fetch(
+              "/api/admin/responses/send-confirmation",
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ responseId: response.id }),
+              }
+            );
 
             if (!result.ok) {
               console.error(
-                `Failed to send welcome email to ${response.email}:`,
+                `Failed to send confirmation email to ${response.email}:`,
                 await result.text()
               );
               failedCount++;
               return false;
             }
+
+            // Update the welcome_email_sent status
+            await fetch(`/api/admin/responses/${response.id}`, {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                ...response,
+                welcome_email_sent: true,
+              }),
+            });
+
             return true;
           } catch (error) {
             console.error(
-              `Error sending welcome email to ${response.email}:`,
+              `Error sending confirmation email to ${response.email}:`,
               error
             );
             failedCount++;
@@ -116,8 +133,8 @@ export function BulkEmailButton({
         disabled={isProcessing}
         className={`flex items-center justify-center px-4 py-2 text-sm font-medium text-white rounded-md shadow-sm ${
           isProcessing
-            ? "bg-blue-300 cursor-not-allowed"
-            : "bg-blue-600 hover:bg-blue-700"
+            ? "bg-purple-300 cursor-not-allowed"
+            : "bg-purple-600 hover:bg-purple-700"
         } transition-colors`}
       >
         {isProcessing ? (
@@ -128,8 +145,8 @@ export function BulkEmailButton({
           </>
         ) : (
           <>
-            <Send className="h-4 w-4 mr-2" />
-            Send Welcome Emails to All Pending Responses
+            <Mail className="h-4 w-4 mr-2" />
+            Send Confirmation Emails to All Pending Responses
           </>
         )}
       </button>
@@ -137,7 +154,7 @@ export function BulkEmailButton({
         <div className="mt-2">
           <div className="w-full bg-gray-200 rounded-full h-2.5">
             <div
-              className="bg-blue-600 h-2.5 rounded-full"
+              className="bg-purple-600 h-2.5 rounded-full"
               style={{
                 width: `${Math.round((progress.sent / progress.total) * 100)}%`,
               }}
