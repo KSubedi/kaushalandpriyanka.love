@@ -18,6 +18,7 @@ export async function createResponse(
       created_at: new Date(),
       updated_at: new Date(),
       invite_id: responseData.inviteId,
+      welcome_email_sent: responseData.welcome_email_sent || false,
     },
   });
 
@@ -31,6 +32,7 @@ export async function createResponse(
     created_at: response.created_at.toISOString(),
     updated_at: response.updated_at.toISOString(),
     inviteId: response.invite_id,
+    welcome_email_sent: response.welcome_email_sent,
   };
 }
 
@@ -55,6 +57,7 @@ export async function getResponseById(
     created_at: response.created_at.toISOString(),
     updated_at: response.updated_at.toISOString(),
     inviteId: response.invite_id,
+    welcome_email_sent: response.welcome_email_sent,
   };
 }
 
@@ -79,6 +82,7 @@ export async function getResponseByInviteId(
     created_at: response.created_at.toISOString(),
     updated_at: response.updated_at.toISOString(),
     inviteId: response.invite_id,
+    welcome_email_sent: response.welcome_email_sent,
   };
 }
 
@@ -97,6 +101,7 @@ export async function getAllResponses(): Promise<InviteResponse[]> {
     created_at: response.created_at.toISOString(),
     updated_at: response.updated_at.toISOString(),
     inviteId: response.invite_id,
+    welcome_email_sent: response.welcome_email_sent,
   }));
 }
 
@@ -119,6 +124,10 @@ export async function updateResponse(
       updated_at: new Date(),
       invite_id:
         responseData.inviteId !== undefined ? responseData.inviteId : undefined,
+      welcome_email_sent:
+        responseData.welcome_email_sent !== undefined
+          ? responseData.welcome_email_sent
+          : undefined,
     },
   });
 
@@ -132,6 +141,7 @@ export async function updateResponse(
     created_at: response.created_at.toISOString(),
     updated_at: response.updated_at.toISOString(),
     inviteId: response.invite_id,
+    welcome_email_sent: response.welcome_email_sent,
   };
 }
 

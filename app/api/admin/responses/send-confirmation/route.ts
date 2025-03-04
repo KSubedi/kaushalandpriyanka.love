@@ -10,7 +10,7 @@ export const POST = withAdminAuth(async (request: NextRequest) => {
   try {
     // Parse request body
     const body = await request.json();
-    const { responseId } = body;
+    const { responseId, testMode = false } = body;
 
     if (!responseId) {
       return NextResponse.json(
@@ -32,8 +32,8 @@ export const POST = withAdminAuth(async (request: NextRequest) => {
       );
     }
 
-    // Check if welcome email has already been sent
-    if (response.welcome_email_sent) {
+    // Check if welcome email has already been sent (skip in test mode)
+    if (response.welcome_email_sent && !testMode) {
       return NextResponse.json(
         { error: "Confirmation email has already been sent to this recipient" },
         { status: 400 }
@@ -44,7 +44,7 @@ export const POST = withAdminAuth(async (request: NextRequest) => {
     const formattedResponse: InviteResponse = {
       id: response.id,
       name: response.name,
-      email: response.email,
+      email: testMode ? "kaushal@wireshock.com" : response.email,
       phone: response.phone,
       inviteId: response.invite_id,
       additional_guests: response.additional_guests,
@@ -69,15 +69,19 @@ export const POST = withAdminAuth(async (request: NextRequest) => {
       response: formattedResponse,
     });
 
-    // Update the response to mark welcome email as sent
-    await prisma.response.update({
-      where: { id: responseId },
-      data: { welcome_email_sent: true },
-    });
+    // Update the response to mark welcome email as sent (skip in test mode)
+    if (!testMode) {
+      await prisma.response.update({
+        where: { id: responseId },
+        data: { welcome_email_sent: true },
+      });
+    }
 
     return NextResponse.json({
       success: true,
-      message: "RSVP confirmation email sent successfully",
+      message: testMode
+        ? "Test confirmation email sent successfully to kaushal@wireshock.com"
+        : "RSVP confirmation email sent successfully",
     });
   } catch (error) {
     console.error("Error sending RSVP confirmation email:", error);

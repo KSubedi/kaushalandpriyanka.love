@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Mail, Loader2 } from "lucide-react";
+import { Mail, Loader2, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 import { InviteResponse } from "@/utils/interfaces/InviteType";
 
@@ -14,21 +14,44 @@ export function BulkEmailButton({
 }: BulkEmailButtonProps) {
   const [isProcessing, setIsProcessing] = useState(false);
   const [progress, setProgress] = useState({ sent: 0, total: 0, failed: 0 });
+  const [isTestMode, setIsTestMode] = useState(false);
 
-  const handleSendBulkEmails = async () => {
+  const handleSendBulkEmails = async (testMode: boolean = false) => {
+    setIsTestMode(testMode);
+
     // Filter responses that haven't received a welcome email yet
-    const pendingResponses = responses.filter(
+    let pendingResponses = responses.filter(
       (response) => !response.welcome_email_sent && response.email
     );
 
-    if (pendingResponses.length === 0) {
+    if (testMode) {
+      // In test mode, only send to kaushal@wireshock.com or use the first response
+      // and modify it for testing
+      const testResponse =
+        pendingResponses.find(
+          (response) => response.email === "kaushal@wireshock.com"
+        ) ||
+        (pendingResponses.length > 0
+          ? { ...pendingResponses[0], email: "kaushal@wireshock.com" }
+          : null);
+
+      if (!testResponse) {
+        toast.error("No pending responses available for test");
+        return;
+      }
+
+      pendingResponses = [testResponse];
+      toast.info("Test mode: Only sending to kaushal@wireshock.com");
+    } else if (pendingResponses.length === 0) {
       toast.info("No pending confirmation emails to send");
       return;
     }
 
-    const confirmSend = window.confirm(
-      `Are you sure you want to send confirmation emails to ${pendingResponses.length} recipients? This will be throttled at 2 emails per second.`
-    );
+    const confirmMessage = testMode
+      ? "Are you sure you want to run a test? This will only send to kaushal@wireshock.com."
+      : `Are you sure you want to send confirmation emails to ${pendingResponses.length} recipients? This will be throttled at 2 emails per second.`;
+
+    const confirmSend = window.confirm(confirmMessage);
 
     if (!confirmSend) return;
 
@@ -69,7 +92,10 @@ export function BulkEmailButton({
                 headers: {
                   "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ responseId: response.id }),
+                body: JSON.stringify({
+                  responseId: response.id,
+                  testMode: testMode,
+                }),
               }
             );
 
@@ -115,40 +141,70 @@ export function BulkEmailButton({
 
   return (
     <div className="mb-6">
-      <button
-        onClick={handleSendBulkEmails}
-        disabled={isProcessing}
-        className={`flex items-center justify-center px-4 py-2 text-sm font-medium text-white rounded-md shadow-sm ${
-          isProcessing
-            ? "bg-purple-300 cursor-not-allowed"
-            : "bg-purple-600 hover:bg-purple-700"
-        } transition-colors`}
-      >
-        {isProcessing ? (
-          <>
-            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-            Sending Emails ({progress.sent}/{progress.total})
-            {progress.failed > 0 && ` (${progress.failed} failed)`}
-          </>
-        ) : (
-          <>
-            <Mail className="h-4 w-4 mr-2" />
-            Send Confirmation Emails to All Pending Responses
-          </>
-        )}
-      </button>
+      <div className="flex flex-col sm:flex-row gap-2 mb-2">
+        <button
+          onClick={() => handleSendBulkEmails(false)}
+          disabled={isProcessing}
+          className={`flex items-center justify-center px-4 py-2 text-sm font-medium text-white rounded-md shadow-sm ${
+            isProcessing
+              ? "bg-purple-300 cursor-not-allowed"
+              : "bg-purple-600 hover:bg-purple-700"
+          } transition-colors`}
+        >
+          {isProcessing && !isTestMode ? (
+            <>
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              Sending Emails ({progress.sent}/{progress.total})
+              {progress.failed > 0 && ` (${progress.failed} failed)`}
+            </>
+          ) : (
+            <>
+              <Mail className="h-4 w-4 mr-2" />
+              Send Confirmation Emails to All Pending Responses
+            </>
+          )}
+        </button>
+
+        <button
+          onClick={() => handleSendBulkEmails(true)}
+          disabled={isProcessing}
+          className={`flex items-center justify-center px-4 py-2 text-sm font-medium text-white rounded-md shadow-sm ${
+            isProcessing
+              ? "bg-amber-300 cursor-not-allowed"
+              : "bg-amber-500 hover:bg-amber-600"
+          } transition-colors`}
+        >
+          {isProcessing && isTestMode ? (
+            <>
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              Testing ({progress.sent}/{progress.total})
+              {progress.failed > 0 && ` (${progress.failed} failed)`}
+            </>
+          ) : (
+            <>
+              <AlertTriangle className="h-4 w-4 mr-2" />
+              Test Run (kaushal@wireshock.com only)
+            </>
+          )}
+        </button>
+      </div>
+
       {isProcessing && (
         <div className="mt-2">
           <div className="w-full bg-gray-200 rounded-full h-2.5">
             <div
-              className="bg-purple-600 h-2.5 rounded-full"
+              className={`h-2.5 rounded-full ${
+                isTestMode ? "bg-amber-500" : "bg-purple-600"
+              }`}
               style={{
                 width: `${Math.round((progress.sent / progress.total) * 100)}%`,
               }}
             ></div>
           </div>
           <p className="text-xs text-gray-500 mt-1">
-            Throttling: 2 emails per second to avoid rate limits
+            {isTestMode
+              ? "Test mode: Only sending to kaushal@wireshock.com"
+              : "Throttling: 2 emails per second to avoid rate limits"}
           </p>
         </div>
       )}
