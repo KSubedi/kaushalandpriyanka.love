@@ -13,8 +13,8 @@ export const WEDDING_EVENTS = {
     NAME: "Haldi",
   },
   SANGEET: {
-    DATE: "2081/11/21", // Falgun 21
-    ENGLISH_DATE: "March 5, 2025",
+    DATE: "2081/11/20", // Falgun 21
+    ENGLISH_DATE: "March 4, 2025",
     NAME: "Sangeet",
   },
   WEDDING: {
@@ -28,8 +28,8 @@ export const WEDDING_EVENTS = {
     NAME: "Reception",
   },
   COLORADO_RECEPTION: {
-    DATE: "2081/11/24", // Falgun 24
-    ENGLISH_DATE: "March 8, 2025",
+    DATE: "2081/11/25", // Falgun 24
+    ENGLISH_DATE: "March 9, 2025",
     NAME: "Colorado Reception",
   },
 };

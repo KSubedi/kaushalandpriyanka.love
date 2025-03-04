@@ -211,7 +211,8 @@ export async function sendRsvpConfirmationEmail({
     const { data, error } = await resend.emails.send({
       from: "Kaushal & Priyanka <wedding@kaushalandpriyanka.love>",
       to: [response.email],
-      subject: "[UPDATE] Your RSVP Confirmation - Kaushal & Priyanka's Wedding",
+      subject:
+        "[Final Update] Your RSVP Confirmation - Kaushal & Priyanka's Wedding",
       html: emailHtml,
     });
 
