@@ -7,20 +7,20 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 // Event address mapping
 const EVENT_ADDRESSES: Record<string, string> = {
-  haldi: "123 Haldi Venue, Houston, TX 77001",
-  sangeet: "456 Sangeet Venue, Houston, TX 77002",
-  wedding: "789 Wedding Venue, Houston, TX 77003",
-  reception: "789 Reception Venue, Houston, TX 77003", // Same venue as wedding
-  coloradoReception: "101 Colorado Reception Venue, Denver, CO 80001",
+  haldi: "25276 Nichols Sawmill Rd, Magnolia, TX 77355",
+  sangeet: "25276 Nichols Sawmill Rd, Magnolia, TX 77355",
+  wedding: "17439 Self Rd, Tomball, TX 77377",
+  reception: "17439 Self Rd, Tomball, TX 77377",
+  coloradoReception: "11885 Bradburn Blvd, Westminster, CO 80031",
 };
 
 // Event time mapping
 const EVENT_TIMES: Record<string, string> = {
-  haldi: "10:00 AM - 12:00 PM",
-  sangeet: "6:00 PM - 10:00 PM",
-  wedding: "11:00 AM - 2:00 PM",
-  reception: "6:00 PM - 11:00 PM",
-  coloradoReception: "6:00 PM - 11:00 PM",
+  haldi: "1:00 PM – 3:00 PM",
+  sangeet: "6:30 PM – 11:00 PM",
+  wedding: "10:00 AM – 2:00 PM",
+  reception: "6:00 PM – 11:30 PM",
+  coloradoReception: "6:00 PM",
 };
 
 // Event color mapping
@@ -146,6 +146,14 @@ export async function sendRsvpConfirmationEmail({
                   <p style="font-size: 16px; line-height: 1.5; color: #333; margin-top: 0;">Dear <strong>${
                     response.name
                   }</strong>,</p>
+                  
+                  <!-- Important Notice -->
+                  <div style="background-color: #fff4f4; border-radius: 8px; padding: 15px; margin: 20px 0; border-left: 4px solid #e91e63;">
+                    <p style="margin: 0; font-size: 16px; color: #333;">
+                      <strong>IMPORTANT:</strong> Due to a technical issue, previous emails may have contained incorrect venue addresses and times. Please use the information in this email for your planning.
+                    </p>
+                  </div>
+                  
                   <p style="font-size: 16px; line-height: 1.5; color: #333;">We're delighted that you'll be joining us for our special day! Below are the details of the events you'll be attending:</p>
                   
                   <!-- Event details -->
@@ -203,7 +211,7 @@ export async function sendRsvpConfirmationEmail({
     const { data, error } = await resend.emails.send({
       from: "Kaushal & Priyanka <wedding@kaushalandpriyanka.love>",
       to: [response.email],
-      subject: "Your RSVP Confirmation - Kaushal & Priyanka's Wedding",
+      subject: "[UPDATE] Your RSVP Confirmation - Kaushal & Priyanka's Wedding",
       html: emailHtml,
     });
 

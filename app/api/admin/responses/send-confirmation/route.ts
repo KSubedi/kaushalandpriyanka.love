@@ -10,7 +10,7 @@ export const POST = withAdminAuth(async (request: NextRequest) => {
   try {
     // Parse request body
     const body = await request.json();
-    const { responseId, testMode = false } = body;
+    const { responseId, testMode = false, bypassSentCheck = false } = body;
 
     if (!responseId) {
       return NextResponse.json(
@@ -32,8 +32,8 @@ export const POST = withAdminAuth(async (request: NextRequest) => {
       );
     }
 
-    // Check if welcome email has already been sent (skip in test mode)
-    if (response.welcome_email_sent && !testMode) {
+    // Check if welcome email has already been sent (skip in test mode or if bypass is enabled)
+    if (response.welcome_email_sent && !testMode && !bypassSentCheck) {
       return NextResponse.json(
         { error: "Confirmation email has already been sent to this recipient" },
         { status: 400 }

@@ -15,14 +15,17 @@ export function BulkEmailButton({
   const [isProcessing, setIsProcessing] = useState(false);
   const [progress, setProgress] = useState({ sent: 0, total: 0, failed: 0 });
   const [isTestMode, setIsTestMode] = useState(false);
+  const [bypassSentCheck, setBypassSentCheck] = useState(false);
 
   const handleSendBulkEmails = async (testMode: boolean = false) => {
     setIsTestMode(testMode);
 
-    // Filter responses that haven't received a welcome email yet
-    let pendingResponses = responses.filter(
-      (response) => !response.welcome_email_sent && response.email
-    );
+    // Filter responses based on bypass setting
+    let pendingResponses = bypassSentCheck
+      ? responses.filter((response) => response.email)
+      : responses.filter(
+          (response) => !response.welcome_email_sent && response.email
+        );
 
     if (testMode) {
       // In test mode, only send to kaushal@wireshock.com or use the first response
@@ -43,12 +46,18 @@ export function BulkEmailButton({
       pendingResponses = [testResponse];
       toast.info("Test mode: Only sending to kaushal@wireshock.com");
     } else if (pendingResponses.length === 0) {
-      toast.info("No pending confirmation emails to send");
+      toast.info(
+        bypassSentCheck
+          ? "No responses available to send emails to"
+          : "No pending confirmation emails to send"
+      );
       return;
     }
 
     const confirmMessage = testMode
       ? "Are you sure you want to run a test? This will only send to kaushal@wireshock.com."
+      : bypassSentCheck
+      ? `Are you sure you want to resend confirmation emails to ${pendingResponses.length} recipients, including those who already received emails? This will be throttled at 2 emails per second.`
       : `Are you sure you want to send confirmation emails to ${pendingResponses.length} recipients? This will be throttled at 2 emails per second.`;
 
     const confirmSend = window.confirm(confirmMessage);
@@ -95,6 +104,7 @@ export function BulkEmailButton({
                 body: JSON.stringify({
                   responseId: response.id,
                   testMode: testMode,
+                  bypassSentCheck: bypassSentCheck,
                 }),
               }
             );
@@ -187,6 +197,24 @@ export function BulkEmailButton({
             </>
           )}
         </button>
+      </div>
+
+      <div className="flex items-center mb-2">
+        <input
+          type="checkbox"
+          id="bypassSentCheck"
+          checked={bypassSentCheck}
+          onChange={(e) => setBypassSentCheck(e.target.checked)}
+          className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+          disabled={isProcessing}
+        />
+        <label
+          htmlFor="bypassSentCheck"
+          className="ml-2 block text-sm text-gray-700"
+        >
+          Bypass sent check (resend to all responses, even if they already
+          received an email)
+        </label>
       </div>
 
       {isProcessing && (

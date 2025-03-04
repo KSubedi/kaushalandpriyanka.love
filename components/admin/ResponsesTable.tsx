@@ -38,7 +38,10 @@ export function ResponsesTable({
     }
   };
 
-  const handleSendConfirmationEmail = async (responseId: string) => {
+  const handleSendConfirmationEmail = async (
+    responseId: string,
+    bypassSentCheck: boolean = false
+  ) => {
     try {
       setSendingEmail(responseId);
       const response = await fetch("/api/admin/responses/send-confirmation", {
@@ -46,7 +49,7 @@ export function ResponsesTable({
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ responseId }),
+        body: JSON.stringify({ responseId, bypassSentCheck }),
       });
 
       const data = await response.json();
@@ -198,28 +201,47 @@ export function ResponsesTable({
                       Edit
                     </button>
 
-                    <button
-                      onClick={() => handleSendConfirmationEmail(response.id)}
-                      disabled={
-                        sendingEmail === response.id ||
-                        response.welcome_email_sent
-                      }
-                      className={`flex items-center justify-center px-2 py-1 text-xs font-medium text-white ${
-                        sendingEmail === response.id
-                          ? "bg-purple-300 cursor-not-allowed"
-                          : response.welcome_email_sent
-                          ? "bg-gray-300 cursor-not-allowed"
-                          : "bg-purple-500 hover:bg-purple-600"
-                      } rounded transition-colors shadow-sm`}
-                      title={
-                        response.welcome_email_sent
-                          ? "Email already sent"
-                          : "Send confirmation email"
-                      }
-                    >
-                      <Mail className="h-3 w-3 mr-1" />
-                      {sendingEmail === response.id ? "Sending..." : "Email"}
-                    </button>
+                    <div className="relative">
+                      {response.welcome_email_sent ? (
+                        <div className="flex gap-1">
+                          <button
+                            onClick={() =>
+                              handleSendConfirmationEmail(response.id, true)
+                            }
+                            disabled={sendingEmail === response.id}
+                            className={`flex items-center justify-center px-2 py-1 text-xs font-medium text-white ${
+                              sendingEmail === response.id
+                                ? "bg-purple-300 cursor-not-allowed"
+                                : "bg-amber-500 hover:bg-amber-600"
+                            } rounded transition-colors shadow-sm`}
+                            title="Resend confirmation email"
+                          >
+                            <Mail className="h-3 w-3 mr-1" />
+                            {sendingEmail === response.id
+                              ? "Sending..."
+                              : "Resend"}
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() =>
+                            handleSendConfirmationEmail(response.id)
+                          }
+                          disabled={sendingEmail === response.id}
+                          className={`flex items-center justify-center px-2 py-1 text-xs font-medium text-white ${
+                            sendingEmail === response.id
+                              ? "bg-purple-300 cursor-not-allowed"
+                              : "bg-purple-500 hover:bg-purple-600"
+                          } rounded transition-colors shadow-sm`}
+                          title="Send confirmation email"
+                        >
+                          <Mail className="h-3 w-3 mr-1" />
+                          {sendingEmail === response.id
+                            ? "Sending..."
+                            : "Email"}
+                        </button>
+                      )}
+                    </div>
 
                     <div className="flex gap-1">
                       <button
